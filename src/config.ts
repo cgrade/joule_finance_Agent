@@ -83,15 +83,15 @@ const getNetwork = (networkStr?: string): Network => {
 const config: Config = {
   aptos: {
     network: getNetwork(process.env.APTOS_NETWORK),
-    privateKey: process.env.APTOS_PRIVATE_KEY || '',
-    nodeUrl: process.env.APTOS_NODE_URL,
+    privateKey: process.env.APTOS_PRIVATE_KEY || '0x1234',
+    nodeUrl: process.env.APTOS_NODE_URL || 'https://fullnode.testnet.aptoslabs.com/v1',
   },
   
   twitter: {
-    apiKey: process.env.TWITTER_API_KEY,
-    apiSecret: process.env.TWITTER_API_SECRET,
-    accessToken: process.env.TWITTER_ACCESS_TOKEN,
-    accessSecret: process.env.TWITTER_ACCESS_SECRET,
+    apiKey: process.env.TWITTER_API_KEY || '',
+    apiSecret: process.env.TWITTER_API_SECRET || '',
+    accessToken: process.env.TWITTER_ACCESS_TOKEN || '',
+    accessSecret: process.env.TWITTER_ACCESS_TOKEN_SECRET || '',
     username: process.env.TWITTER_USERNAME,
     password: process.env.TWITTER_PASSWORD,
     email: process.env.TWITTER_EMAIL,
@@ -140,7 +140,7 @@ const config: Config = {
   },
   
   llm: {
-    model: process.env.LLM_MODEL || 'claude-3-5-sonnet-20241022',
+    model: 'claude-3-haiku-20240307',
     apiKey: process.env.ANTHROPIC_API_KEY || '',
     temperature: parseFloat(process.env.LLM_TEMPERATURE || '0.7'),
   },
@@ -153,9 +153,9 @@ const config: Config = {
   },
 
   posting: {
-    frequencySeconds: process.env.POSTING_FREQUENCY_SECONDS ? 
-      parseInt(process.env.POSTING_FREQUENCY_SECONDS) : 3600,
-    enableSocialInteractions: process.env.ENABLE_SOCIAL_INTERACTIONS === 'true'
+    frequencySeconds: process.env.POST_FREQUENCY ? 
+      parseInt(process.env.POST_FREQUENCY) : 3600,
+    enableSocialInteractions: process.env.NODE_ENV !== 'production'
   }
 };
 
@@ -171,7 +171,7 @@ export const validateConfig = (): void => {
   if (!config.twitter.apiKey) missingTwitter.push('TWITTER_API_KEY');
   if (!config.twitter.apiSecret) missingTwitter.push('TWITTER_API_SECRET');
   if (!config.twitter.accessToken) missingTwitter.push('TWITTER_ACCESS_TOKEN');
-  if (!config.twitter.accessSecret) missingTwitter.push('TWITTER_ACCESS_SECRET');
+  if (!config.twitter.accessSecret) missingTwitter.push('TWITTER_ACCESS_TOKEN_SECRET');
   
   if (missingTwitter.length > 0) {
     console.warn(`WARNING: Missing Twitter API credentials: ${missingTwitter.join(', ')}`);

@@ -15,9 +15,17 @@ import config from './config';
 import { logger } from './utils/logger';
 import { TwitterReplyMonitor } from './reply-monitor';
 import { JouleKnowledgeBase } from './knowledge/knowledge-base';
+import chalk from "chalk";
 
 // Ensure environment variables are loaded
 dotenv.config();
+
+// Initialize with a nice header
+console.log(chalk.bold.blue('\n🔄 JOULE FINANCE AGENT 🔄'));
+console.log(chalk.cyan('==============================\n'));
+
+// Just keep one relevant chalk log
+console.log(`${chalk.yellow('➤')} Initializing Joule Finance posting agent...`);
 
 // Add this function near the top of the file, after imports
 function getRandomPrompt(): string {
@@ -95,18 +103,22 @@ export const startScheduledPosting = async (frequencySeconds: number): Promise<v
     const knowledgeBase = new JouleKnowledgeBase();
     await knowledgeBase.initialize();
     
-    // Create and initialize Twitter reply monitor
-    const replyMonitor = new TwitterReplyMonitor();
-    await replyMonitor.initialize();
-    
-    // Start monitoring for replies (check every 2 minutes)
-    await replyMonitor.startMonitoring(120000);
+    // Create and initialize Twitter reply monitor (but don't fail if it doesn't work)
+    let replyMonitor: TwitterReplyMonitor | null = null; 
+    try {
+      replyMonitor = new TwitterReplyMonitor();
+      await replyMonitor.initialize();
+      await replyMonitor.startMonitoring(120000);
+    } catch (error) {
+      console.log(chalk.yellow('⚠️ Reply monitoring disabled due to Twitter API error'));
+      // Continue without reply monitoring
+    }
     
     // Create the posting system with knowledge integration
-    const createBullishPost = await createBullishPostSystem(knowledgeBase);
+    const createBullishPost = await createBullishPostSystem();
     
     // Start the posting schedule
-    console.log(`Starting scheduled posting every ${frequencySeconds} seconds`);
+    console.log(chalk.blue(`ℹ️ Starting scheduled posting every ${frequencySeconds} seconds`));
     
     // Define the scheduled function
     const runScheduledPost = async () => {
@@ -125,7 +137,7 @@ export const startScheduledPosting = async (frequencySeconds: number): Promise<v
     // Then schedule regular interval
     setInterval(runScheduledPost, frequencySeconds * 1000);
   } catch (error) {
-    console.error('Error starting scheduled posting:', error);
+    console.error(chalk.red(`✖️ Error starting scheduled posting: ${(error as Error).message}`));
     throw error;
   }
 };

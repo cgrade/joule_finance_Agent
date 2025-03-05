@@ -10,6 +10,10 @@ import { z } from "zod";
 import { AgentRuntime } from "../agent/runtime";
 import { EntryFunctionArgumentTypes } from "@aptos-labs/ts-sdk";
 import { logger } from "../utils/logger";
+import JouleFinanceDataTool from './jouleFinance';
+import ChartVisualizationTool from './visualization';
+import XProfessionalPostTool from './socialMedia';
+import JouleKnowledgeBase from './knowledgeBase';
 
 /**
  * Creates a token transfer tool for Aptos
@@ -226,3 +230,10 @@ export const createAptosTools = (agent: AgentRuntime): StructuredTool[] => {
 };
 
 export { z };
+
+export {
+  JouleFinanceDataTool,
+  ChartVisualizationTool,
+  XProfessionalPostTool,
+  JouleKnowledgeBase
+};

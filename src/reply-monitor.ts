@@ -3,27 +3,22 @@ import { ChatAnthropic } from '@langchain/anthropic';
 import config from './config';
 import { JouleKnowledgeBase } from './knowledge/knowledge-base';
 import { HumanMessage } from '@langchain/core/messages';
+import chalk from 'chalk';
 
 /**
  * Monitor and reply to Twitter mentions and comments
  */
 export class TwitterReplyMonitor {
-  private twitterClient: TwitterApi;
+  private twitterClient: TwitterApi | null = null;
   private knowledgeBase: JouleKnowledgeBase;
   private llm: ChatAnthropic;
   private lastCheckedId: string | null = null;
   private myUserId: string;
   private lastErrorLogTime: number = 0;
+  private isInitialized: boolean = false;
+  private isDevelopmentMode: boolean = true;
   
   constructor() {
-    // Initialize Twitter client using type assertion to bypass strict type checking
-    this.twitterClient = new TwitterApi({
-      appKey: config.twitter.apiKey,
-      appSecret: config.twitter.apiSecret,
-      accessToken: config.twitter.accessToken,
-      accessSecret: config.twitter.accessSecret
-    } as any);
-    
     // Initialize knowledge base
     this.knowledgeBase = new JouleKnowledgeBase();
     
@@ -42,16 +37,28 @@ export class TwitterReplyMonitor {
    */
   async initialize(): Promise<void> {
     try {
-      // Initialize knowledge base
-      await this.knowledgeBase.initialize();
+      // Check if all required Twitter credentials are available
+      if (!config.twitter.apiKey || !config.twitter.apiSecret ||
+          !config.twitter.accessToken || !config.twitter.accessSecret) {
+        console.log(chalk.yellow('⚠️ Missing Twitter API credentials - Reply monitoring disabled'));
+        this.isDevelopmentMode = true;
+        return;
+      }
+
+      this.twitterClient = new TwitterApi({
+        appKey: config.twitter.apiKey,
+        appSecret: config.twitter.apiSecret,
+        accessToken: config.twitter.accessToken,
+        accessSecret: config.twitter.accessSecret
+      });
       
-      // Get my user ID
-      const me = await this.twitterClient.currentUser();
-      this.myUserId = me.id_str;
-      console.log(`Twitter reply monitor initialized for user ID: ${this.myUserId}`);
+      this.isInitialized = true;
+      this.isDevelopmentMode = false;
+      console.log(chalk.green('✅ Twitter reply monitor initialized successfully'));
     } catch (error) {
-      console.error('Error initializing Twitter reply monitor:', error);
-      throw error;
+      console.log(chalk.red(`✖️ Error initializing Twitter reply monitor: ${(error as Error).message}`));
+      console.log(chalk.yellow('⚠️ Reply monitoring will be disabled. App will continue in dev mode.'));
+      this.isDevelopmentMode = true;
     }
   }
   
@@ -59,6 +66,11 @@ export class TwitterReplyMonitor {
    * Start monitoring for mentions and replies
    */
   async startMonitoring(interval: number = 60000): Promise<void> {
+    if (this.isDevelopmentMode || !this.twitterClient) {
+      console.log(chalk.blue('ℹ️ Reply monitoring skipped (development mode)'));
+      return;
+    }
+    
     try {
       // Do an initial check
       await this.checkForReplies();
@@ -82,6 +94,10 @@ export class TwitterReplyMonitor {
    * Check for new mentions and replies
    */
   private async checkForReplies(): Promise<void> {
+    if (!this.twitterClient) {
+      return; // Skip if no client
+    }
+    
     try {
       // Get mentions timeline
       const params: any = { count: 10 };
@@ -135,6 +151,11 @@ export class TwitterReplyMonitor {
    * Process a single reply or mention
    */
   private async processReply(tweet: any): Promise<void> {
+    if (!this.twitterClient) {
+      console.log(chalk.yellow('⚠️ Cannot process reply (development mode): would reply to tweet ' + tweet.id_str));
+      return;
+    }
+    
     try {
       console.log(`Processing reply: ${tweet.id_str} from @${tweet.user.screen_name}`);
       
@@ -165,6 +186,10 @@ export class TwitterReplyMonitor {
    * Get context from the conversation thread
    */
   private async getConversationContext(tweet: any): Promise<string> {
+    if (!this.twitterClient) {
+      return tweet.text;
+    }
+    
     // If this is a reply, get the parent tweet
     if (tweet.in_reply_to_status_id_str) {
       try {
@@ -183,6 +208,10 @@ export class TwitterReplyMonitor {
    * Generate a reply using LLM and knowledge context
    */
   private async generateReply(tweet: any, conversationContext: string, knowledgeContext: string): Promise<string> {
+    if (!this.twitterClient) {
+      return "No Twitter client available for generating reply";
+    }
+    
     const prompt = `You are representing Joule Finance, a professional DeFi protocol on the Aptos blockchain. 
     You need to craft a helpful, professional response to a Twitter user.
 
@@ -222,6 +251,11 @@ export class TwitterReplyMonitor {
    * Post a reply to Twitter with rate limit awareness
    */
   private async postReply(replyText: string, inReplyToId: string): Promise<void> {
+    if (!this.twitterClient) {
+      console.log(chalk.yellow('⚠️ Cannot reply (development mode): would reply to tweet ' + inReplyToId));
+      return;
+    }
+    
     try {
       // Add a small delay to respect rate limits
       await new Promise(resolve => setTimeout(resolve, 2000));
