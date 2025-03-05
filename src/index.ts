@@ -19,6 +19,29 @@ import { JouleKnowledgeBase } from './knowledge/knowledge-base';
 // Ensure environment variables are loaded
 dotenv.config();
 
+// Add this function near the top of the file, after imports
+function getRandomPrompt(): string {
+  const prompts = [
+    "Create a post about Joule Finance TVL growth and market share expansion",
+    "Share the latest APY rates for Joule Finance lending markets with competitive analysis",
+    "Post about Joule Finance's leveraged yield farming opportunities and risk-adjusted returns",
+    "Create content about Joule Finance's cross-chain LRT capabilities and LayerZero integration",
+    "Analyze Joule Finance's performance versus competing DeFi protocols with key metrics",
+    "Highlight the strategic advantages of Joule Finance on Aptos blockchain",
+    "Detail Joule Finance's innovative liquidation mechanisms and risk management",
+    "Showcase Joule Finance's institutional-grade infrastructure and security features",
+    "Explain Joule Finance's role in Aptos DeFi ecosystem development",
+    "Break down Joule Finance's multi-asset lending markets and collateral efficiency",
+    "Present Joule Finance's cross-chain liquidity aggregation capabilities",
+    "Analyze Joule Finance's capital efficiency metrics and utilization rates",
+    "Highlight Joule Finance's automated yield optimization strategies",
+    "Detail Joule Finance's integration with major Aptos DeFi protocols",
+    "Share Joule Finance's latest protocol upgrades and feature releases"
+  ];
+  
+  return prompts[Math.floor(Math.random() * prompts.length)];
+}
+
 // Set up scheduler if enabled
 const setupScheduler = async (): Promise<void> => {
   if (!config.scheduler.enabled) {
@@ -134,7 +157,7 @@ Examples:
   node dist/index.js "Post about Joule Finance TVL"      Run with custom message
   node dist/index.js --schedule                          Start cron scheduler
   node dist/index.js --frequency                         Start frequency-based scheduler
-      `);
+`);
     } else {
       // Run a single bull post
       const userInput = args.join(' ') || "Create a professional bull post about Joule Finance's performance this week";

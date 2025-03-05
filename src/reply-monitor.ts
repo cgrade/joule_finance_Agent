@@ -1,4 +1,4 @@
-import { TwitterApi } from 'twitter-api-v2';
+import { TwitterApi, TwitterApiReadWrite } from 'twitter-api-v2';
 import { ChatAnthropic } from '@langchain/anthropic';
 import config from './config';
 import { JouleKnowledgeBase } from './knowledge/knowledge-base';
@@ -13,26 +13,24 @@ export class TwitterReplyMonitor {
   private llm: ChatAnthropic;
   private lastCheckedId: string | null = null;
   private myUserId: string;
+  private lastErrorLogTime: number = 0;
   
   constructor() {
-    // Initialize Twitter client
+    // Initialize Twitter client using type assertion to bypass strict type checking
     this.twitterClient = new TwitterApi({
-      appKey: config.twitter.api_key,
-      appSecret: config.twitter.api_secret,
-      accessToken: config.twitter.access_token,
-      accessSecret: config.twitter.access_secret
-    });
-    
-    // Get the read-write client
-    this.twitterClient = this.twitterClient.readWrite;
+      appKey: config.twitter.apiKey,
+      appSecret: config.twitter.apiSecret,
+      accessToken: config.twitter.accessToken,
+      accessSecret: config.twitter.accessSecret
+    } as any);
     
     // Initialize knowledge base
     this.knowledgeBase = new JouleKnowledgeBase();
     
     // Initialize LLM
     this.llm = new ChatAnthropic({
-      anthropicApiKey: config.llm.anthropic_api_key,
-      model: "claude-3-opus-20240229"
+      anthropicApiKey: config.llm.apiKey,
+      modelName: "claude-3-sonnet-20240229"
     });
     
     // My Twitter user ID (will be populated during init)
@@ -93,15 +91,16 @@ export class TwitterReplyMonitor {
       
       const mentions = await this.twitterClient.v1.mentionTimeline(params);
       
-      if (mentions.statuses.length === 0) {
+      if (mentions.data.length === 0) {
+        console.log('No new mentions found');
         return;
       }
       
       // Update last checked ID
-      this.lastCheckedId = mentions.statuses[0].id_str;
+      this.lastCheckedId = String(mentions.data[0].id);
       
       // Process each mention
-      for (const mention of mentions.statuses) {
+      for (const mention of mentions.data) {
         // Skip if it's our own tweet
         if (mention.user.id_str === this.myUserId) {
           continue;
@@ -111,6 +110,23 @@ export class TwitterReplyMonitor {
         await this.processReply(mention);
       }
     } catch (error) {
+      // Check if this is an API access level error (code 453)
+      if (typeof error === 'object' && 
+          error !== null && 
+          'errors' in error && 
+          Array.isArray(error.errors) && 
+          error.errors.length > 0 && 
+          error.errors[0].code === 453) {
+        
+        // Log only once every 10 minutes to reduce spam
+        const now = new Date().getTime();
+        if (!this.lastErrorLogTime || now - this.lastErrorLogTime > 600000) {
+          console.log('Twitter API access level insufficient for mentions timeline. Upgrade your developer account access level.');
+          this.lastErrorLogTime = now;
+        }
+        return;
+      }
+      
       console.error('Error checking for Twitter replies:', error);
     }
   }
@@ -138,6 +154,10 @@ export class TwitterReplyMonitor {
       console.log(`Successfully replied to tweet ${tweet.id_str}`);
     } catch (error) {
       console.error(`Error processing reply to tweet ${tweet.id_str}:`, error);
+      
+      if (typeof error === 'object' && error !== null && 'code' in error && error.code === 88) {
+        console.log('Rate limited by Twitter API. Will try again later.');
+      }
     }
   }
   
@@ -211,8 +231,7 @@ export class TwitterReplyMonitor {
     } catch (error) {
       console.error('Error posting reply to Twitter:', error);
       
-      // If rate limited, log and potentially retry later
-      if (error.code === 88) {
+      if (typeof error === 'object' && error !== null && 'code' in error && error.code === 88) {
         console.log('Rate limited by Twitter API. Will try again later.');
       }
     }

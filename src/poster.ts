@@ -39,6 +39,7 @@ import { createAptosTools } from './tools';
 import config from './config';
 import { ChartVisualizationTool } from './tools/visualization';
 import { JouleBlockchainData } from './tools/blockchain-data';
+import { JouleKnowledgeBase } from './knowledge/knowledge-base';
 
 /**
  * Metric type for Joule Finance
@@ -882,7 +883,7 @@ class XProfessionalPostTool extends StructuredTool {
     
     if (!this.client) {
       // Development mode, just log what would happen
-      console.log(`[DEV] Would post tweet: ${content}`);
+        console.log(`[DEV] Would post tweet: ${content}`);
       if (mediaPath) {
         console.log(`[DEV] Would include image: ${mediaPath}`);
       }
@@ -910,7 +911,7 @@ class XProfessionalPostTool extends StructuredTool {
         const fs = require('fs');
         if (fs.existsSync(mediaPath)) {
           console.log(`Media file exists! Size: ${fs.statSync(mediaPath).size} bytes`);
-        } else {
+      } else {
           console.log(`Media file does not exist at: ${mediaPath}`);
         }
       }
@@ -1045,31 +1046,28 @@ const getLLM = (): ChatAnthropic => {
  * Agent Nodes for the LangGraph workflow
  */
 
-// Define an interface with proper index signature first
-interface StateWithIndexSignature {
-  messages: any;
-  lastPostTime: any;
-  metrics: any;
-  [key: string]: any;
-}
-
-// Add type assertion to bypass the constraint check
+// Define state annotation correctly using the Annotation.Root approach
 const StateAnnotation = Annotation.Root({
+  // Define messages with proper reducer function
   messages: Annotation({
-    reducer: (a: BaseMessage[], b: BaseMessage[]) => [...a, ...b],
+    reducer: (current: BaseMessage[], addition: BaseMessage[]) => [...current, ...addition],
     default: () => [] as BaseMessage[]
   }),
+  
+  // Define lastPostTime with proper reducer function
   lastPostTime: Annotation({
     reducer: (_old: Date, current: Date) => current,
     default: () => new Date()
   }),
+  
+  // Define metrics with proper reducer function
   metrics: Annotation({
     reducer: (_old: { tvl?: number, apy?: number }, current: { tvl?: number, apy?: number }) => current,
     default: () => ({} as { tvl?: number, apy?: number })
   })
-}) as any as StateDefinition;
+});
 
-// Define the state type using the annotation's type property
+// Define proper type for PosterState
 type PosterState = typeof StateAnnotation;
 
 // 1. Data Reader Agent - Fetches relevant Joule Finance data
@@ -1077,7 +1075,7 @@ const createReaderAgent = (jouleFinanceReader: JouleFinanceDataTool) => {
   return async (state: PosterState): Promise<PosterState> => {
     try {
       // Access state properties through the annotation's spec
-      const messages = (state.values as unknown as StateValues)?.messages || [];
+      const messages = state.messages || [];
       
       // Check if there are messages before accessing the last one
       const latestMessage = messages.length > 0 
@@ -1151,13 +1149,12 @@ const createReaderAgent = (jouleFinanceReader: JouleFinanceDataTool) => {
       }
       
       const newMessages = [...messages, new FunctionMessage({
-        content: JSON.stringify(results),
-        name: "reader_agent"
+            content: JSON.stringify(results),
+            name: "reader_agent"
       })];
       
       // @ts-ignore
-      state = { ...state, values: { ...state.values, messages: newMessages } };
-      return state;
+      return { ...state, messages: newMessages };
     } catch (error) {
       console.error('Error in reader agent:', error);
       throw error;
@@ -1169,16 +1166,16 @@ const createReaderAgent = (jouleFinanceReader: JouleFinanceDataTool) => {
 const messageStore: BaseMessage[] = [];
 
 // 2. Content Writer Agent - Creates professional posts about Joule Finance
-const createWriterAgent = () => {
+const createWriterAgent = (knowledgeBase?: JouleKnowledgeBase) => {
   return async (state: PosterState): Promise<PosterState> => {
-    // Define messages outside try/catch block
-    const messages = (state.values as unknown as StateValues)?.messages || [];
-    
     try {
-      // Get the latest message content
+      // Access properties directly from state (not state.values)
+      const messages = state.messages || [];
+      
+      // Get the latest message from reader or user input
       const latestMessage = messages.length > 0 
         ? messages[messages.length - 1] 
-        : { content: 'Create a professional post about Joule Finance metrics' };
+        : { content: 'Create a professional post about Joule Finance' };
       
       const llm = getLLM();
       
@@ -1264,7 +1261,7 @@ Response should contain ONLY the tweet text, crafted with institutional-grade fi
       
       console.log('Generated tweet content:', response.content);
       
-      // Create writer message with name property to identify it
+      // Create writer message with name property
       console.log('Creating writer message with name property...');
       const writerMessage = new FunctionMessage({
         content: response.content as string,
@@ -1273,23 +1270,28 @@ Response should contain ONLY the tweet text, crafted with institutional-grade fi
       
       console.log('Writer message created:', JSON.stringify(writerMessage));
       
-      // Store message in external store for the poster to use
-      messageStore.push(writerMessage);
-      
+      // Update the state properly - this is the key fix
       const updatedMessages = [...messages, writerMessage];
       
-      // @ts-ignore
-      state = { ...state, values: { ...state.values, messages: updatedMessages } };
-      return state;
+      // Return updated state with proper structure
+      return {
+        ...state,
+        messages: updatedMessages
+      };
     } catch (error) {
       console.error('Error in writer agent:', error);
-      const errorMessages = [...messages, new FunctionMessage({
+      
+      // Create error message
+      const errorMessage = new FunctionMessage({
         content: JSON.stringify({ error: (error as Error).message }),
         name: "writer_agent"
-      })];
-      // @ts-ignore
-      state = { ...state, values: { ...state.values, messages: errorMessages } };
-      return state;
+      });
+      
+      // Return valid state with error message
+      return {
+        ...state,
+        messages: [...(state.messages || []), errorMessage]
+      };
     }
   };
 };
@@ -1297,14 +1299,27 @@ Response should contain ONLY the tweet text, crafted with institutional-grade fi
 // 3. Posting Agent - Responsible for posting content to Twitter/X
 const createPostingAgent = (xPoster: XProfessionalPostTool) => {
   return async (state: PosterState): Promise<PosterState> => {
+    // Extract messages from state outside try/catch to make it available in both blocks
+    const messages = state.messages || [];
+    
     try {
-      // Extract messages from state
-      const messages = (state.values as unknown as StateValues)?.messages || [];
+      // Debug logging to see what messages are available
+      console.log(`Posting agent received ${messages.length} messages`);
+      console.log(`Message types: ${messages.map(m => m.name || 'unnamed').join(', ')}`);
       
-      // Get the latest content from the writer agent
-      const writerMessage = messages.find(msg => msg.name === "writer_agent");
+      // Get the latest content from the writer agent - search by both name and type
+      const writerMessage = messages.find(msg => 
+        msg.name === "writer_agent" || 
+        (msg._getType && msg._getType() === "function" && msg.name === "writer_agent")
+      );
+      
       if (!writerMessage) {
         console.log('No writer message found. Cannot proceed with posting.');
+        console.log('Available messages:', JSON.stringify(messages.map(m => ({
+          type: m._getType ? m._getType() : typeof m,
+          name: m.name,
+          hasContent: !!m.content
+        }))));
         return state;
       }
       
@@ -1344,7 +1359,7 @@ const createPostingAgent = (xPoster: XProfessionalPostTool) => {
         const visualization = await xPoster.generateVisualization(metricsData);
         mediaPath = visualization.path;
         console.log(`Generated visualization with real blockchain data at: ${mediaPath}`);
-      } catch (error) {
+          } catch (error) {
         console.error('Error fetching blockchain data:', error);
         
         // Fallback to sample metrics if blockchain data fetching fails
@@ -1384,18 +1399,35 @@ const createPostingAgent = (xPoster: XProfessionalPostTool) => {
       // Post to Twitter with the visualization
       await xPoster.postTweet(tweetContent, mediaPath);
       
-      // Create post message for the message store
+      // Create post message and add to state (not external messageStore)
       const postMessage = new FunctionMessage({
-        content: JSON.stringify({ success: true, tweet_id: 'mock-12345', text: tweetContent, development_mode: false }),
-        name: "posting_agent"
+        content: JSON.stringify({ 
+          success: true, 
+          tweet_id: 'mock-12345', 
+          text: tweetContent, 
+          development_mode: false 
+        }),
+        name: "posting_agent" 
       });
-      messageStore.push(postMessage);
       
-      // Return updated state
-      return state;
+      // Return updated state with post message
+      return {
+        ...state,
+        messages: [...messages, postMessage]
+      };
     } catch (error) {
       console.error('Error in posting agent:', error);
-      return state;
+      // Now messages is in scope here
+      return {
+        ...state,
+        messages: [...messages, new FunctionMessage({
+          content: JSON.stringify({ 
+            success: false, 
+            error: (error as Error).message 
+          }),
+          name: "posting_agent"
+        })]
+      };
     }
   };
 };
@@ -1403,8 +1435,7 @@ const createPostingAgent = (xPoster: XProfessionalPostTool) => {
 // 4. Manager Agent - Coordinates the workflow
 const createManagerAgent = () => {
   return async (state: PosterState): Promise<PosterState> => {
-    // Define messages outside try/catch block
-    const messages = (state.values as unknown as StateValues)?.messages || [];
+    const messages = state.messages || [];
     
     try {
       // Check if there are any messages before accessing the last one
@@ -1434,18 +1465,21 @@ const createManagerAgent = () => {
       const response = await llm.invoke([new HumanMessage(managerPrompt)]);
       
       const updatedMessages = [...messages, new AIMessage(response.content as string, { name: "manager_agent" })];
-      // @ts-ignore
-      state = { ...state, values: { ...state.values, messages: updatedMessages } };
-      return state;
+      
+      // Return proper state structure with type assertion
+      return {
+        ...state,
+        messages: updatedMessages
+      };
     } catch (error) {
-      console.error('Error in manager agent:', error);
-      const errorMessages = [...messages, new FunctionMessage({
-        content: JSON.stringify({ error: (error as Error).message }),
-        name: "manager_agent"
-      })];
-      // @ts-ignore
-      state = { ...state, values: { ...state.values, messages: errorMessages } };
-      return state;
+      // Error handling with proper return
+      return {
+        ...state,
+        messages: [...messages, new FunctionMessage({
+          content: JSON.stringify({ error: (error as Error).message }),
+          name: "manager_agent"
+        })]
+      };
     }
   };
 };
@@ -1453,7 +1487,7 @@ const createManagerAgent = () => {
 /**
  * Build and export the complete agent system
  */
-export const createBullishPostSystem = async (): Promise<(userInput: string) => Promise<StateType<typeof StateAnnotation>>> => {
+export const createBullishPostSystem = async (knowledgeBase?: JouleKnowledgeBase): Promise<(input: string) => Promise<any>> => {
   try {
     // Initialize Move Agent Kit runtime
     const agentRuntime = await initializeAgentRuntime();
@@ -1475,7 +1509,7 @@ export const createBullishPostSystem = async (): Promise<(userInput: string) => 
       .addNode('reader', createReaderAgent(jouleFinanceReader), {
         ends: ["writer", "__end__"]
       })
-      .addNode('writer', createWriterAgent(), {
+      .addNode('writer', createWriterAgent(knowledgeBase), {
         ends: ["poster", "__end__"]
       })
       .addNode('poster', createPostingAgent(xPoster), {
@@ -1495,43 +1529,43 @@ export const createBullishPostSystem = async (): Promise<(userInput: string) => 
     });
     
     // Return a function that takes a user input
-    return async (userInput: string): Promise<StateType<typeof StateAnnotation>> => {
-      try {
-        console.log(`Processing request: ${userInput}`);
+    return async (userInput: string): Promise<any> => {
+        try {
+          console.log(`Processing request: ${userInput}`);
         
         // Initialize with a proper HumanMessage
         const initialMessage = new HumanMessage(userInput);
-        
-        const result = await app.invoke({
+          
+          const result = await app.invoke({
           messages: [initialMessage], // Ensure this is a properly formed message
-          lastPostTime: new Date(),
-          metrics: {}
-        }, { configurable: { thread_id: "unique_id" } });
-        
-        // Add null check for messages array
-        const messages = result.values?.messages || [];
-        console.log(JSON.stringify(messages.slice(-3), null, 2));
-        
-        // Extract the posted tweet from the result
+            lastPostTime: new Date(),
+            metrics: {}
+          }, { configurable: { thread_id: "unique_id" } });
+          
+          // Add null check for messages array
+        const messages = result.messages || [];
+          console.log(JSON.stringify(messages.slice(-3), null, 2));
+          
+          // Extract the posted tweet from the result
         const postingResult = messages.find((msg: BaseMessage) => msg.name === 'posting_agent');
-        if (postingResult) {
-          const postData = JSON.parse(postingResult.content as string);
-          console.log('\nTWEET POSTED:');
-          if (postData.success) {
-            console.log(`Tweet ID: ${postData.tweet_id}`);
-            console.log(`Content: ${postData.text}`);
-            console.log(`Development Mode: ${postData.development_mode ? 'Yes' : 'No'}`);
-          } else {
-            console.log(`Posting failed: ${postData.error}`);
+          if (postingResult) {
+            const postData = JSON.parse(postingResult.content as string);
+            console.log('\nTWEET POSTED:');
+            if (postData.success) {
+              console.log(`Tweet ID: ${postData.tweet_id}`);
+              console.log(`Content: ${postData.text}`);
+              console.log(`Development Mode: ${postData.development_mode ? 'Yes' : 'No'}`);
+            } else {
+              console.log(`Posting failed: ${postData.error}`);
+            }
           }
+          
+          return result;
+        } catch (error) {
+          console.error('Error running the bullish post system:', error);
+          throw error;
         }
-        
-        return result;
-      } catch (error) {
-        console.error('Error running the bullish post system:', error);
-        throw error;
-      }
-    };
+      };
   } catch (error) {
     console.error('Error creating the bullish post system:', error);
     throw error;
@@ -1550,10 +1584,10 @@ export const runAsBullishPoster = async (userInput?: string): Promise<void> => {
     
     // Print the result
     console.log('\nFINAL RESULT:');
-    console.log(JSON.stringify(result.values?.messages.slice(-3), null, 2));
+    console.log(JSON.stringify(result.messages?.slice(-3), null, 2));
     
     // Extract the posted tweet from the result
-    const postingResult = result.values?.messages.find((msg: BaseMessage) => msg.name === 'posting_agent');
+    const postingResult = result.messages?.find((msg: BaseMessage) => msg.name === 'posting_agent');
     if (postingResult) {
       const postData = JSON.parse(postingResult.content as string);
       console.log('\nTWEET POSTED:');
