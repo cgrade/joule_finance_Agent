@@ -1,19 +1,27 @@
 {
     "compilerOptions": {
-      "target": "ES2020",
-      "module": "NodeNext",
-      "lib": ["ES2020", "DOM"],
+      "target": "es2022",
+      "module": "commonjs",
+      "outDir": "./dist",
       "strict": true,
       "esModuleInterop": true,
       "skipLibCheck": true,
       "forceConsistentCasingInFileNames": true,
-      "outDir": "dist",
-      "declaration": true,
-      "resolveJsonModule": true,
-      "moduleResolution": "NodeNext",
-      "types": ["node"],
-      "sourceMap": true
+      "resolveJsonModule": true
     },
-    "include": ["src/**/*"],
-    "exclude": ["node_modules", "dist"]
+    "include": [
+      "src/index.ts",
+      "src/tools/jouleFinanceDataTool.ts",
+      "src/clients/**/*.ts",
+      "src/agent/postGenerator.ts",
+      "src/charts/**/*.ts",
+      "src/config.ts"
+    ],
+    "exclude": [
+      "node_modules",
+      "src/agents/**/*.ts",
+      "src/state/**/*.ts",
+      "src/utils/llm.ts",
+      "src/tools/xPostTool.ts"
+    ]
   }

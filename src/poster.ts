@@ -72,8 +72,8 @@ export const createBullishPostSystem = async (): Promise<(userInput: string) => 
         console.error(`Error running the bullish post system (${(Date.now() - startTime) / 1000}s):`, error);
         throw error;
       }
-    };
-  } catch (error) {
+      };
+    } catch (error) {
     console.error('Error creating the bullish post system:', error);
     throw error;
   }

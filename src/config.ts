@@ -63,7 +63,12 @@ export interface Config {
   posting: {
     frequencySeconds: number;
     enableSocialInteractions: boolean;
-  }
+  };
+
+  APTOS_ENDPOINT: string;
+  DEVELOPMENT_MODE: boolean;
+  POST_FREQUENCY_SECONDS: number;
+  OPENAI_MODEL?: string;
 }
 
 // Convert network string to Network enum
@@ -82,9 +87,9 @@ const getNetwork = (networkStr?: string): Network => {
 // Create and export the configuration
 const config: Config = {
   aptos: {
-    network: getNetwork(process.env.APTOS_NETWORK),
+    network: Network.MAINNET,
     privateKey: process.env.APTOS_PRIVATE_KEY || '0x1234',
-    nodeUrl: process.env.APTOS_NODE_URL || 'https://fullnode.testnet.aptoslabs.com/v1',
+    nodeUrl: process.env.APTOS_NODE_URL || 'https://fullnode.mainnet.aptoslabs.com/v1',
   },
   
   twitter: {
@@ -105,7 +110,7 @@ const config: Config = {
   
   joule: {
     contracts: {
-      main: process.env.JOULE_MAIN_CONTRACT || '0xf3a39de749efe6b1fb5087c8da67e9ef6d4f48aea5b96eb502dbd4aabac35e64',
+      main: "0x2fe576faa841347a9b1b32c869685deb75a15e3f62dfe37cbd6d52cc403a16f6",
       lending: process.env.JOULE_LENDING_CONTRACT || '0xf3a39de749efe6b1fb5087c8da67e9ef6d4f48aea5b96eb502dbd4aabac35e64',
       staking: process.env.JOULE_STAKING_CONTRACT || '0x111169ad690e16881e6e85e86e13c79c22a25a25cabf0cef70140dd8328e6c99',
     },
@@ -156,7 +161,12 @@ const config: Config = {
     frequencySeconds: process.env.POST_FREQUENCY ? 
       parseInt(process.env.POST_FREQUENCY) : 3600,
     enableSocialInteractions: process.env.NODE_ENV !== 'production'
-  }
+  },
+
+  APTOS_ENDPOINT: process.env.APTOS_ENDPOINT || 'https://fullnode.mainnet.aptoslabs.com/v1',
+  DEVELOPMENT_MODE: !process.env.TWITTER_ACCESS_TOKEN_SECRET,
+  POST_FREQUENCY_SECONDS: 300, // 5 minutes
+  OPENAI_MODEL: process.env.OPENAI_MODEL || 'gpt-4'
 };
 
 // Validate critical configuration

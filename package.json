@@ -5,10 +5,14 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
-    "start": "node dist/index.js",
+    "start": "NODE_ENV=production ts-node src/index.ts",
+    "start:scheduled": "NODE_ENV=production ts-node src/index.ts --frequency",
     "dev": "ts-node src/index.ts",
     "scheduled": "ts-node src/index.ts --frequency",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev:chart": "NODE_ENV=development ts-node src/test-chart-post.ts",
+    "prod:chart": "NODE_ENV=production ts-node src/test-chart-post.ts",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "test-chart": "ts-node src/test-chart.ts"
   },
   "keywords": [
     "aptos",
@@ -20,7 +24,7 @@
     "defi",
     "ai"
   ],
-  "author": "Your Name",
+  "author": "Mr. Grade",
   "license": "MIT",
   "dependencies": {
     "@aptos-labs/ts-sdk": "^1.9.1",
@@ -28,19 +32,19 @@
     "@langchain/community": "^0.3.34",
     "@langchain/core": "^0.3.42",
     "@langchain/langgraph": "^0.2.53",
-    "axios": "^1.6.7",
-    "canvas": "^3.1.0",
-    "chalk": "^5.4.1",
+    "axios": "^1.8.1",
+    "canvas": "^2.11.2",
+    "chalk": "^4.1.2",
     "dotenv": "^16.4.5",
     "got": "^14.4.6",
     "langchain": "^0.3.19",
     "node-cron": "^3.0.3",
     "otpauth": "^9.3.6",
-    "puppeteer": "^24.3.1",
     "twitter-api-v2": "^1.16.0",
     "zod": "^3.22.4"
   },
   "devDependencies": {
+    "@types/jsdom": "^21.1.7",
     "@types/node": "^20.11.19",
     "@types/node-cron": "^3.0.11",
     "ts-node": "^10.9.2",

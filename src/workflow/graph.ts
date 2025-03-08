@@ -16,6 +16,16 @@ import {
 } from "../tools";
 import config from "../config";
 
+// Define the market data interface
+interface MarketData {
+  tvl: number;
+  apr: number;
+  users: number;
+  volume24h: number;
+  assets: Record<string, { price: number; tvl: number; apr: number; }>;
+  [key: string]: any;
+}
+
 // Complete the implementation with proper visualization support
 export const buildPosterWorkflow = (
   jouleFinanceTool: JouleFinanceDataTool,
@@ -47,11 +57,20 @@ export const buildPosterWorkflow = (
           });
           
           // 2. Reader stage - proper error handling for getData
-          let marketData = { tvl: 0, apr: 0 };
+          // Initialize marketData with a default empty structure
+          let marketData: MarketData = {
+            tvl: 0,
+            apr: 0,
+            users: 0,
+            volume24h: 0,
+            assets: {}
+          };
+          
           try {
-            // Use type assertion to tell TypeScript this method exists
-            const tool = jouleFinanceTool as any;
-            marketData = await tool.getData() || marketData;
+            // Try to use the tool's getData if it exists
+            if (jouleFinanceTool && typeof (jouleFinanceTool as any).getData === 'function') {
+              marketData = await (jouleFinanceTool as any).getData() || marketData;
+            }
           } catch (error) {
             console.error("Error getting market data:", error);
           }
@@ -75,10 +94,43 @@ export const buildPosterWorkflow = (
             messages: [
               { 
                 role: 'user', 
-                content: `Write content for a social media post about: ${input}
-                Based on this data: ${readerContent}
-                Include metrics, comparisons, and highlight Joule Finance's advantages.
-                Keep it professional, concise and engaging.`
+                content: `Write a concise, data-driven social media post about: ${input}
+                
+                ${marketData.dataSource === "blockchain" 
+                  ? `Based on this Joule Finance real-time data from the blockchain:
+                
+                - TVL: $${(marketData.tvl/1000000).toFixed(2)}M
+                - Current APR: ${marketData.apr.toFixed(2)}%
+                - 24h Trading Volume: $${(marketData.volume24h/1000000).toFixed(2)}M
+                - Active Users: ${marketData.users.toLocaleString()}
+                
+                Blockchain confirmation: ${marketData.blockchainProof || "Data verified from blockchain"}
+                Last updated: ${marketData.lastUpdated || new Date().toISOString()}
+                
+                Top Assets:
+                ${Object.entries(marketData.assets)
+                  .sort((a, b) => b[1].tvl - a[1].tvl)
+                  .slice(0, 3)
+                  .map(([asset, data]) => 
+                    `- ${asset}: Price $${data.price.toFixed(2)}, TVL $${(data.tvl/1000000).toFixed(2)}M, APR ${data.apr.toFixed(2)}%`
+                  ).join('\n')}`
+                  : `I was unable to retrieve real-time blockchain data for Joule Finance.
+                  Error: ${marketData.error || "Unknown connection issue"}
+                  
+                  Please write a post about Joule Finance that explains we are currently 
+                  unable to access real-time metrics, but focus on the protocol's features 
+                  without quoting specific numbers.`
+                }
+                
+                IMPORTANT INSTRUCTIONS:
+                1. ${marketData.dataSource === "blockchain" 
+                    ? "Your post MUST include specific numbers from the data above and clearly state they are real-time blockchain metrics"
+                    : "Explain that real-time metrics could not be retrieved from the blockchain. DO NOT make up or invent any metrics."
+                  }
+                2. Keep it professional, concise and engaging (max 280 characters)
+                3. Format as a ready-to-post tweet
+                
+                Now write an informative ${marketData.dataSource === "blockchain" ? "data-driven" : "general"} tweet about Joule Finance:`
               }
             ]
           });
