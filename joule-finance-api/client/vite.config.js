@@ -1,6 +1,9 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
+// Check if we're building for Vercel
+const isVercel = process.env.VERCEL === '1'
+
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
@@ -14,7 +17,7 @@ export default defineConfig({
     }
   },
   build: {
-    outDir: '../public',
+    outDir: isVercel ? 'dist' : '../public',
     emptyOutDir: true
   }
 }) 

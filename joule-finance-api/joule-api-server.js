@@ -20,6 +20,10 @@ const { ChatAnthropic } = require('@langchain/anthropic');
 const jouleFinanceData = require('./services/jouleFinanceData');
 const knowledgeBase = require('./services/knowledgeBase');
 
+// Import database and conversation service
+const db = require('./models');
+const conversationService = require('./services/conversationService');
+
 // Simple logger implementation
 const logger = {
   info: (message) => console.log(`[INFO] ${message}`),
@@ -333,71 +337,94 @@ let agentReady = false;
   }
 })();
 
-// Chat API endpoint
+// Initialize database connection
+let dbInitialized = false;
+
+async function initializeDatabase() {
+  try {
+    await db.sequelize.authenticate();
+    console.log('Database connection established successfully.');
+    
+    // Sync models with database (in production, use migrations instead)
+    if (process.env.NODE_ENV !== 'production') {
+      await db.sequelize.sync();
+    }
+    
+    dbInitialized = true;
+    return true;
+  } catch (error) {
+    console.error('Unable to connect to the database:', error);
+    return false;
+  }
+}
+
+// Initialize database on startup
+initializeDatabase();
+
+// Update the chat endpoint to use the database
 app.post('/api/chat', async (req, res) => {
   try {
     const { message, sessionId } = req.body;
+    const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
     
-    if (!message) {
-      return res.status(400).json({ error: 'Message is required' });
-    }
+    // Create a session if one doesn't exist
+    const sid = sessionId || uuidv4();
     
-    // Check if agent is ready
-    if (!agentReady) {
-      logger.info('Agent not ready, attempting to initialize');
-      agentReady = await agent.initialize();
-      
-      if (!agentReady) {
-        return res.status(503).json({ error: 'Agent is initializing, please try again shortly' });
-      }
-    }
+    // Get or create conversation for this session
+    const conversation = await conversationService.getOrCreateConversationBySessionId(
+      sid, 
+      clientIp
+    );
     
-    // Get or create session
-    let session;
-    if (sessionId && sessions[sessionId]) {
-      session = sessions[sessionId];
-      logger.info(`Continuing session ${sessionId}`);
-    } else {
-      const newSessionId = uuidv4();
-      session = {
-        id: newSessionId,
-        messages: [],
-        created: Date.now(),
-        lastAccessed: Date.now()
-      };
-      sessions[newSessionId] = session;
-      logger.info(`Created new session ${newSessionId}`);
-    }
+    // Add user message to conversation
+    await conversationService.addMessage(conversation.id, 'user', message);
     
-    // Update last accessed time
-    session.lastAccessed = Date.now();
+    // Process message with the agent
+    const result = await agent.processMessage(message, [], sid);
     
-    // Add message to history
-    session.messages.push({
-      role: 'user',
-      content: message,
-      timestamp: new Date().toISOString()
-    });
+    // Add assistant response to conversation
+    await conversationService.addMessage(conversation.id, 'assistant', result);
     
-    // Process message with agent
-    const response = await agent.processMessage(message, session.messages, session.id);
-    
-    // Add response to history
-    session.messages.push({
-      role: 'assistant',
-      content: response,
-      timestamp: new Date().toISOString()
-    });
-    
-    // Return response
+    // Return response to client
     res.json({
-      text: response,
-      sessionId: session.id
+      text: result,
+      sessionId: sid,
+      conversationId: conversation.id
     });
     
   } catch (error) {
-    logger.error('Error processing message:', error);
+    console.error('Error processing message:', error);
     res.status(500).json({ error: 'Failed to process message' });
+  }
+});
+
+// Add new endpoint to get conversation history
+app.get('/api/conversations', async (req, res) => {
+  try {
+    const { sessionId } = req.query;
+    if (!sessionId) {
+      return res.status(400).json({ error: 'Session ID is required' });
+    }
+    
+    const conversations = await conversationService.getUserConversations(sessionId);
+    res.json(conversations);
+  } catch (error) {
+    console.error('Error fetching conversations:', error);
+    res.status(500).json({ error: 'Failed to fetch conversations' });
+  }
+});
+
+app.get('/api/conversations/:id', async (req, res) => {
+  try {
+    const conversation = await conversationService.getConversation(req.params.id);
+    if (!conversation) {
+      return res.status(404).json({ error: 'Conversation not found' });
+    }
+    
+    res.json(conversation);
+  } catch (error) {
+    console.error('Error fetching conversation:', error);
+    res.status(500).json({ error: 'Failed to fetch conversation' });
   }
 });
 

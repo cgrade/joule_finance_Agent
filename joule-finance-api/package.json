@@ -1,11 +1,18 @@
 {
   "name": "joule-finance-api",
   "version": "1.0.0",
-  "description": "Standalone API for Joule Finance Agent",
+  "description": "Joule Finance AI Assistant API",
   "main": "joule-api-server.js",
   "scripts": {
     "start": "node joule-api-server.js",
-    "dev": "nodemon joule-api-server.js"
+    "dev": "nodemon joule-api-server.js",
+    "build": "cd client && npm install && npm run build",
+    "postinstall": "npm run build",
+    "deploy-client": "cd client && npm run build",
+    "deploy": "npm run deploy-client && npm start"
+  },
+  "engines": {
+    "node": ">=16.0.0"
   },
   "keywords": [
     "joule",
@@ -23,6 +30,7 @@
     "dotenv": "^16.4.7",
     "express": "^4.18.2",
     "fs-extra": "^11.3.0",
+    "sequelize": "^6.37.6",
     "uuid": "^9.0.1"
   },
   "devDependencies": {

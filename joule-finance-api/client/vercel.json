@@ -1,0 +1,12 @@
+{
+    "buildCommand": "vite build",
+    "outputDirectory": "dist",
+    "devCommand": "vite --port $PORT",
+    "framework": "vite",
+    "rewrites": [
+        {
+            "source": "/api/(.*)",
+            "destination": "https://your-api-domain.com/api/$1"
+        }
+    ]
+}
