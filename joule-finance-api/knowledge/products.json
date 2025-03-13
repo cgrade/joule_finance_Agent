@@ -1,0 +1,88 @@
+[
+    {
+        "name": "Lending Protocol",
+        "description": "Deposit assets to earn interest or borrow assets by providing collateral",
+        "features": [
+            "Variable and fixed interest rates",
+            "Multiple collateral types",
+            "Liquidation protection features",
+            "Boost yields with JOULE staking"
+        ],
+        "risks": [
+            "Smart contract risk",
+            "Liquidation risk if collateral value drops",
+            "Interest rate fluctuations"
+        ],
+        "marketTypes": [
+            {
+                "name": "Main Markets",
+                "description": "Assets used as collateral together, sharing borrowing power"
+            },
+            {
+                "name": "Isolated Markets",
+                "description": "Assets kept as isolated collateral with separate risk profiles"
+            },
+            {
+                "name": "Efficiency Mode (E-Mode)",
+                "description": "Higher LTV ratios for correlated assets like stablecoins"
+            }
+        ]
+    },
+    {
+        "name": "Liquidity Pools",
+        "description": "Provide liquidity to earn trading fees and JOULE rewards",
+        "features": [
+            "Concentrated liquidity for better capital efficiency",
+            "Multiple fee tiers",
+            "Single-sided liquidity provision",
+            "Boosted rewards for long-term stakers"
+        ],
+        "risks": [
+            "Impermanent loss",
+            "Smart contract risk",
+            "Market volatility impact"
+        ]
+    },
+    {
+        "name": "Staking",
+        "description": "Stake JOULE tokens to earn protocol fees and governance rights",
+        "features": [
+            "Tiered staking rewards",
+            "Voting power for governance",
+            "Early access to new features",
+            "Revenue sharing from protocol fees"
+        ],
+        "lockupPeriods": [
+            "14 days",
+            "30 days",
+            "90 days",
+            "180 days"
+        ],
+        "rewards": [
+            "Base APR 8-12%",
+            "Protocol fee share",
+            "Voting rights"
+        ]
+    },
+    {
+        "name": "Cross-Chain Bridge",
+        "description": "Move assets between Aptos and other blockchains",
+        "supportedChains": [
+            "Ethereum",
+            "BNB Chain",
+            "Solana",
+            "Avalanche"
+        ],
+        "features": [
+            "Fast transfers within minutes",
+            "Low fees compared to native bridges",
+            "Security through multi-signature validation",
+            "Support for multiple token types"
+        ],
+        "securityMeasures": [
+            "24-hour timelock for large transfers",
+            "Insurance fund for bridge operations",
+            "Regular security audits"
+        ]
+    }
+]

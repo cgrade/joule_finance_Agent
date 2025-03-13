@@ -1,0 +1,45 @@
+{
+    "name": "Joule Finance",
+    "description": "A DeFi protocol built on the Aptos blockchain focused on lending, borrowing, and liquidity provision",
+    "launchDate": "2023-03-15",
+    "founder": "Joule Labs",
+    "website": "https://joule.finance",
+    "github": "https://github.com/joule-finance",
+    "features": [
+        "Lending and borrowing with competitive rates",
+        "Liquidity pools with incentivized staking",
+        "Cross-chain bridges for multi-chain support",
+        "Yield farming opportunities",
+        "Governance through JOULE token"
+    ],
+    "uniqueSellingPoints": [
+        "Built natively on Aptos for maximum efficiency",
+        "Advanced risk management system",
+        "Higher yields than competitors",
+        "Innovative flash loan protocol",
+        "Community-driven governance"
+    ],
+    "technology": {
+        "blockchain": "Aptos",
+        "smartContracts": "Move Language",
+        "architecture": "Modular design with isolated risk components",
+        "securityFeatures": [
+            "Formal verification",
+            "Multiple security audits",
+            "Insurance fund",
+            "Gradual parameter adjustment"
+        ]
+    },
+    "riskManagement": {
+        "liquidationThreshold": "Varies by asset, typically 80-90% of LTV",
+        "liquidationProcess": "Automatic with incentives for liquidators",
+        "riskParameters": "Dynamically adjusted based on market conditions",
+        "insuranceMechanism": "Protocol fee allocation to insurance fund"
+    },
+    "governance": {
+        "token": "JOULE",
+        "votingMechanism": "Snapshot voting with token-weighted votes",
+        "proposalThreshold": "100,000 JOULE tokens to submit proposals",
+        "implementationDelay": "48 hours after successful vote"
+    }
+}

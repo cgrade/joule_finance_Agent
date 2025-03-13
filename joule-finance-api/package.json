@@ -1,0 +1,31 @@
+{
+  "name": "joule-finance-api",
+  "version": "1.0.0",
+  "description": "Standalone API for Joule Finance Agent",
+  "main": "joule-api-server.js",
+  "scripts": {
+    "start": "node joule-api-server.js",
+    "dev": "nodemon joule-api-server.js"
+  },
+  "keywords": [
+    "joule",
+    "finance",
+    "api",
+    "chat"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@langchain/anthropic": "^0.3.15",
+    "axios": "^1.8.3",
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.18.2",
+    "fs-extra": "^11.3.0",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}

@@ -1,0 +1,224 @@
+{
+    "overview": {
+        "marketSize": "$20,358,031.63",
+        "totalBorrowed": "$11,832,010.20",
+        "totalValueLocked": "$8,526,021.43",
+        "lastUpdated": "2023-03-15T00:00:00Z"
+    },
+    "markets": [
+        {
+            "token": "USDC",
+            "fullName": "Circle USDC",
+            "ltvRatio": "80%",
+            "supplied": {
+                "amount": "5.37M",
+                "value": "$5.37M"
+            },
+            "borrowed": {
+                "amount": "4.62M",
+                "value": "$4.62M"
+            },
+            "lendingAPR": "8.73%",
+            "borrowingAPR": "6.02%",
+            "hasBoost": true
+        },
+        {
+            "token": "USDt",
+            "fullName": "Tether USD",
+            "ltvRatio": "80%",
+            "supplied": {
+                "amount": "4.87M",
+                "value": "$4.87M"
+            },
+            "borrowed": {
+                "amount": "4.33M",
+                "value": "$4.33M"
+            },
+            "lendingAPR": "8.67%",
+            "borrowingAPR": "6.22%",
+            "hasBoost": true
+        },
+        {
+            "token": "TruAPT",
+            "fullName": "TruFin APT",
+            "ltvRatio": "70%",
+            "supplied": {
+                "amount": "700.11K",
+                "value": "$3.8M"
+            },
+            "borrowed": {
+                "amount": "573.48",
+                "value": "$3.11K"
+            },
+            "lendingAPR": "0.00%",
+            "borrowingAPR": "0.00%",
+            "hasBoost": false
+        },
+        {
+            "token": "APT",
+            "fullName": "AptosCoin",
+            "ltvRatio": "70%",
+            "supplied": {
+                "amount": "415.05K",
+                "value": "$2.15M"
+            },
+            "borrowed": {
+                "amount": "363.94K",
+                "value": "$1.89M"
+            },
+            "lendingAPR": "2.15%",
+            "borrowingAPR": "3.51%",
+            "hasBoost": false
+        },
+        {
+            "token": "WETH",
+            "fullName": "LayerZero WETH",
+            "ltvRatio": "70%",
+            "supplied": {
+                "amount": "428.94",
+                "value": "$820.71K"
+            },
+            "borrowed": {
+                "amount": "200.51",
+                "value": "$383.65K"
+            },
+            "lendingAPR": "5.47%",
+            "borrowingAPR": "1.87%",
+            "hasBoost": true
+        },
+        {
+            "token": "amAPT",
+            "fullName": "Amnis Finance",
+            "ltvRatio": "70%",
+            "supplied": {
+                "amount": "248.06",
+                "value": "$1.29K"
+            },
+            "borrowed": {
+                "amount": "194.71",
+                "value": "$1.01K"
+            },
+            "lendingAPR": "1.73%",
+            "borrowingAPR": "3.14%",
+            "hasBoost": false
+        },
+        {
+            "token": "stAPT",
+            "fullName": "Amnis Finance",
+            "ltvRatio": "70%",
+            "supplied": {
+                "amount": "541.44K",
+                "value": "$3.16M"
+            },
+            "borrowed": {
+                "amount": "96.8K",
+                "value": "$564.79K"
+            },
+            "lendingAPR": "12.88%",
+            "borrowingAPR": "0.72%",
+            "hasBoost": true
+        },
+        {
+            "token": "WBTC",
+            "fullName": "LayerZero WBTC",
+            "ltvRatio": "60%",
+            "supplied": {
+                "amount": "0.27",
+                "value": "$22.48K"
+            },
+            "borrowed": {
+                "amount": "0.13",
+                "value": "$11.3K"
+            },
+            "lendingAPR": "19.92%",
+            "borrowingAPR": "2.01%",
+            "hasBoost": true
+        },
+        {
+            "token": "aBTC",
+            "fullName": "Echo Protocol",
+            "ltvRatio": "45%",
+            "supplied": {
+                "amount": "0",
+                "value": "$201.42"
+            },
+            "borrowed": {
+                "amount": "0",
+                "value": "$113.87"
+            },
+            "lendingAPR": "15.05%",
+            "borrowingAPR": "37.73%",
+            "hasBoost": false
+        },
+        {
+            "token": "eAPT",
+            "fullName": "Echo Protocol",
+            "ltvRatio": "70%",
+            "supplied": {
+                "amount": "24.68K",
+                "value": "$129.93K"
+            },
+            "borrowed": {
+                "amount": "767.61",
+                "value": "$4.04K"
+            },
+            "lendingAPR": "0.00%",
+            "borrowingAPR": "0.12%",
+            "hasBoost": false
+        },
+        {
+            "token": "sthAPT",
+            "fullName": "Thala",
+            "ltvRatio": "70%",
+            "supplied": {
+                "amount": "18.44",
+                "value": "$109.14"
+            },
+            "borrowed": {
+                "amount": "0",
+                "value": "$0"
+            },
+            "lendingAPR": "7.27%",
+            "borrowingAPR": "0.00%",
+            "hasBoost": true
+        },
+        {
+            "token": "USDC (LayerZero)",
+            "fullName": "LayerZero USDC",
+            "ltvRatio": "80%",
+            "supplied": {
+                "amount": "27.13K",
+                "value": "$27.13K"
+            },
+            "borrowed": {
+                "amount": "22.9K",
+                "value": "$22.9K"
+            },
+            "lendingAPR": "3.50%",
+            "borrowingAPR": "5.91%",
+            "hasBoost": false
+        },
+        {
+            "token": "USDT (LayerZero)",
+            "fullName": "LayerZero USDT",
+            "ltvRatio": "80%",
+            "supplied": {
+                "amount": "6.52K",
+                "value": "$6.52K"
+            },
+            "borrowed": {
+                "amount": "3.97K",
+                "value": "$3.97K"
+            },
+            "lendingAPR": "2.95%",
+            "borrowingAPR": "5.43%",
+            "hasBoost": false
+        }
+    ],
+    "features": [
+        "Main Markets",
+        "Isolated Markets",
+        "Efficiency Mode",
+        "Reward Claiming"
+    ]
+}

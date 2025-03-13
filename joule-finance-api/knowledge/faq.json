@@ -1,0 +1,42 @@
+[
+    {
+        "question": "What is Joule Finance?",
+        "answer": "Joule Finance is a DeFi protocol built on the Aptos blockchain that provides lending, borrowing, staking, and liquidity provision services. It offers competitive rates through its innovative market architecture and risk management systems."
+    },
+    {
+        "question": "How does lending work on Joule Finance?",
+        "answer": "Lending on Joule Finance allows you to deposit your assets and earn interest. The process is straightforward: connect your wallet, select the asset you want to deposit, enter the amount, and confirm the transaction. Interest accrues continuously and can be withdrawn anytime, along with your principal."
+    },
+    {
+        "question": "What are the risks of using Joule Finance?",
+        "answer": "The main risks include: 1) Smart contract risk - the possibility of bugs or exploits in the code; 2) Liquidation risk for borrowers if collateral value drops; 3) Market volatility affecting asset values and interest rates; 4) Impermanent loss when providing liquidity. Joule Finance implements multiple security measures and has undergone security audits to minimize these risks."
+    },
+    {
+        "question": "What is the difference between Main Markets and Isolated Markets?",
+        "answer": "Main Markets allow assets to be used as collateral together, sharing the same borrowing power pool. Isolated Markets keep collateral separate, meaning each position has its own risk profile and liquidation conditions. Main Markets offer more capital efficiency, while Isolated Markets provide better risk isolation."
+    },
+    {
+        "question": "What is Efficiency Mode (E-Mode)?",
+        "answer": "Efficiency Mode (E-Mode) is a feature that allows higher loan-to-value (LTV) ratios for assets that are correlated, such as stablecoins. It increases capital efficiency by letting users borrow more against their collateral when borrowing assets within the same E-Mode category."
+    },
+    {
+        "question": "How do I claim rewards on Joule Finance?",
+        "answer": "To claim rewards: 1) Navigate to the Rewards section in the Joule Finance app; 2) Connect your wallet if not already connected; 3) View your available rewards across different pools; 4) Click on the 'Claim' button for the rewards you wish to receive; 5) Confirm the transaction in your wallet."
+    },
+    {
+        "question": "What is the JOULE token?",
+        "answer": "JOULE is the governance token of the Joule Finance protocol. It allows holders to participate in governance decisions, stake for enhanced yields, and earn a share of protocol fees. The token represents voting power in the Joule DAO (Decentralized Autonomous Organization)."
+    },
+    {
+        "question": "How does liquidation work?",
+        "answer": "Liquidation occurs when a borrower's health factor falls below 1, meaning their loan-to-value ratio exceeds the allowed threshold. Liquidators can repay part of the loan and receive a discount on the borrower's collateral. To avoid liquidation, borrowers should maintain a safe collateral ratio by either adding more collateral or repaying part of their loan."
+    },
+    {
+        "question": "What are the highest yield opportunities on Joule Finance?",
+        "answer": "Currently, the highest lending yields on Joule Finance are: WBTC (19.92% APR), aBTC (15.05% APR), and stAPT (12.88% APR). These rates may vary based on market conditions and utilization rates. Some assets also offer boosted rates when participating in the protocol's staking program."
+    },
+    {
+        "question": "How does Joule Finance ensure security?",
+        "answer": "Joule Finance ensures security through: 1) Multiple independent security audits; 2) Formal verification of critical smart contracts; 3) Bug bounty programs to incentivize finding vulnerabilities; 4) Insurance fund to cover potential losses; 5) Gradual rollout of new features with capital limits; 6) Conservative risk parameters for collateralization ratios."
+    }
+]
