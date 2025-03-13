@@ -155,33 +155,14 @@ All data is sourced from the Joule Finance protocol and is current as of ${new D
   async processMessage(message, history, sessionId) {
     // Update stats
     this.stats.totalRequests++;
-    this.stats.lastRequest = new Date().toISOString();
-    
-    // Check if data is stale (> 15 minutes old) and refresh if needed
-    const fifteenMinutes = 15 * 60 * 1000;
-    const dataAge = Date.now() - (new Date(this.financeData.lastUpdated || 0)).getTime();
-    
-    if (dataAge > fifteenMinutes) {
-      logger.info('Refreshing stale Joule Finance data...');
-      try {
-        this.financeData = await jouleFinanceData.getAllData();
-        // Update system prompt with fresh data
-        this.systemPrompt = this.generateSystemPrompt();
-        logger.info('Successfully refreshed Joule Finance data');
-      } catch (error) {
-        logger.error('Error refreshing data:', error.message);
-        // Continue with slightly stale data
-      }
-    }
-    
-    // If we don't have an API key, fall back to mock responses
+    this.stats.lastRequest = new Date();
+
+    // Check if we're using the real model
     if (!this.useRealModel) {
-      const fallbackResponse = this.getFallbackResponse(message);
-      this.stats.successfulRequests++;
-      return fallbackResponse;
+      return this.getFallbackResponse(message);
     }
     
-    // Look for relevant knowledge to include in prompt
+    // Use the correct method from the knowledge base
     const relevantInfo = knowledgeBase.getRelevantInfo(message);
     let extraContext = '';
     
@@ -225,12 +206,15 @@ All data is sourced from the Joule Finance protocol and is current as of ${new D
     ];
     
     // Add conversation history (limited to last 10 messages to prevent context overflow)
-    const recentHistory = history.slice(-10);
+    const recentHistory = Array.isArray(history) ? history.slice(-10) : [];
+    
     for (const msg of recentHistory) {
-      messages.push({
-        role: msg.role === 'user' ? 'user' : 'assistant',
-        content: msg.content
-      });
+      if (msg && typeof msg === 'object' && msg.content) {
+        messages.push({
+          role: msg.role === 'user' ? 'user' : 'assistant',
+          content: msg.content
+        });
+      }
     }
     
     // Add the current message if not in history
@@ -241,7 +225,7 @@ All data is sourced from the Joule Finance protocol and is current as of ${new D
     // Call Anthropic
     try {
       logger.info(`Processing message for session ${sessionId}: "${message}"`);
-      logger.info(`Using system prompt with ${this.systemPrompt.length} characters and ${extraContext.length} chars of additional context`);
+      logger.info(`Using system prompt with ${this.systemPrompt.length} characters and ${extraContext ? extraContext.length : 0} chars of additional context`);
       
       const response = await this.anthropic.invoke(messages);
       
