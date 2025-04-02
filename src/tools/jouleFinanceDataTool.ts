@@ -1,6 +1,6 @@
 import axios from "axios";
 import chalk from "chalk";
-import config from "../config";
+import config from "../config.js";
 
 // Define interfaces locally
 export interface MarketData {
@@ -28,11 +28,11 @@ export class JouleFinanceDataTool implements BlockchainDataTool {
   private contractAddress: string = "0x2fe576faa841347a9b1b32c869685deb75a15e3f62dfe37cbd6d52cc403a16f6";
 
   // Hardcoded values (moved from scraper.ts)
-  private readonly FALLBACK_TVL = 9949126.35;
-  private readonly FALLBACK_MARKET_SIZE = 12500000;
-  private readonly FALLBACK_BORROWED = 2550873.65;
-  private readonly FALLBACK_APR = 3.87;
-  private readonly FALLBACK_USERS = 2800;
+  private readonly FALLBACK_TVL = 9548053.97;
+  private readonly FALLBACK_MARKET_SIZE = 21194721.38;
+  private readonly FALLBACK_BORROWED = 11646667.40;
+  private readonly FALLBACK_APR = 9.14;
+  private readonly FALLBACK_USERS = 3200;
 
   constructor(private runtime?: any) {
     this.endpoint = config.APTOS_ENDPOINT || "https://fullnode.mainnet.aptoslabs.com/v1";
@@ -185,39 +185,62 @@ export class JouleFinanceDataTool implements BlockchainDataTool {
    * Updated with real data from the website
    */
   private getFallbackData(): MarketData {
-    // Updated TVL from website: $9,504,135.67
-    const tvl = 9504135.67;
+    // Updated TVL from website: $9,548,053.97
+    const tvl = this.FALLBACK_TVL;
     
-    // Calculate blended APR from the asset data
-    // Use the regular lending APR, not the boosted values
+    // Asset data updated directly from the Joule Finance website
     const assets: Record<string, AssetData> = {
       'USDC': {
-        tvl: 4900000,
-        apr: 5.99
+        tvl: 5400000,
+        apr: 6.02
       },
-      'USDT': {
+      'USDt': {
         tvl: 4880000,
         apr: 6.22
       },
+      'TruAPT': {
+        tvl: 3740000, 
+        apr: 0.00
+      },
       'APT': {
-        tvl: 2440000, 
-        apr: 5.74
+        tvl: 2120000, 
+        apr: 3.52
       },
       'WETH': {
-        tvl: 987930, 
-        apr: 1.73
+        tvl: 816210, 
+        apr: 1.87
+      },
+      'amAPT': {
+        tvl: 1270, 
+        apr: 3.12
       },
       'stAPT': {
-        tvl: 3340000, 
-        apr: 0.73
+        tvl: 3130000, 
+        apr: 0.72
       },
       'WBTC': {
-        tvl: 22960, 
-        apr: 2.02
+        tvl: 22220, 
+        apr: 2.00
+      },
+      'aBTC': {
+        tvl: 198.29, 
+        apr: 37.73
       },
       'eAPT': {
-        tvl: 153400, 
+        tvl: 128220, 
         apr: 0.12
+      },
+      'sthAPT': {
+        tvl: 107.67, 
+        apr: 0.00
+      },
+      'USDC_LZ': {
+        tvl: 27130, 
+        apr: 6.04
+      },
+      'USDT_LZ': {
+        tvl: 6710, 
+        apr: 5.24
       }
     };
     
@@ -272,4 +295,4 @@ export class JouleFinanceDataTool implements BlockchainDataTool {
     
     return assets;
   }
-} 
+}

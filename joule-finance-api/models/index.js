@@ -1,38 +1,43 @@
-const fs = require('fs');
+const { Sequelize, DataTypes } = require('sequelize');
 const path = require('path');
-const Sequelize = require('sequelize');
-const dbConfig = require('../config/database');
+const fs = require('fs');
 
-const basename = path.basename(__filename);
-const env = process.env.NODE_ENV || 'development';
-const config = dbConfig[env];
-
+// Configure database connection
 let sequelize;
-if (config.use_env_variable) {
-  sequelize = new Sequelize(process.env[config.use_env_variable], config);
+if (process.env.DATABASE_URL) {
+  // Use Heroku's DATABASE_URL environment variable
+  sequelize = new Sequelize(process.env.DATABASE_URL, {
+    dialect: 'postgres',
+    dialectOptions: {
+      ssl: {
+        require: true,
+        rejectUnauthorized: false // Required for Heroku Postgres
+      }
+    }
+  });
 } else {
-  sequelize = new Sequelize(
-    config.database,
-    config.username,
-    config.password,
-    config
-  );
+  // Use local database for development
+  sequelize = new Sequelize('joule_chat', 'postgres', 'password', {
+    host: 'localhost',
+    dialect: 'postgres'
+  });
 }
 
-const db = {
-  sequelize,
-  Sequelize
-};
+// Rest of your models/index.js code...
+const db = {};
 
-// Load models
+db.Sequelize = Sequelize;
+db.sequelize = sequelize;
+
+// Import models
 fs.readdirSync(__dirname)
-  .filter(file => file !== basename && file.endsWith('.js'))
+  .filter(file => file.indexOf('.') !== 0 && file !== 'index.js' && file.slice(-3) === '.js')
   .forEach(file => {
-    const model = require(path.join(__dirname, file))(sequelize, Sequelize.DataTypes);
+    const model = require(path.join(__dirname, file))(sequelize, DataTypes);
     db[model.name] = model;
   });
 
-// Associate models
+// Set up associations
 Object.keys(db).forEach(modelName => {
   if (db[modelName].associate) {
     db[modelName].associate(db);

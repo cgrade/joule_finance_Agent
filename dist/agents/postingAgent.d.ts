@@ -1,5 +1,5 @@
-import { PosterState } from "../state/types";
-import { XProfessionalPostTool } from "../tools/socialMedia";
+import { PosterState } from "../state/types.js";
+import { XProfessionalPostTool } from "../tools/socialMedia.js";
 /**
  * Creates a posting agent that posts content to social media
  */

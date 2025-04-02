@@ -14,7 +14,7 @@ const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 
 // Import Anthropic
-const { ChatAnthropic } = require('@langchain/anthropic');
+const { Anthropic } = require('@anthropic-ai/sdk');
 
 // Import Joule Finance data service
 const jouleFinanceData = require('./services/jouleFinanceData');
@@ -44,21 +44,7 @@ const sessions = {};
 // Enhanced agent with real Anthropic integration and real data
 class EnhancedAgent {
   constructor() {
-    const apiKey = process.env.ANTHROPIC_API_KEY;
-    // Check if API key is available and valid
-    if (!apiKey || apiKey === "your_anthropic_api_key_here") {
-      console.warn("⚠️ Valid ANTHROPIC_API_KEY not found. Using fallback responses.");
-      this.useRealModel = false;
-    } else {
-      this.useRealModel = true;
-      console.log("Using real Anthropic API with key starting with:", apiKey.substring(0, 7));
-      this.anthropic = new ChatAnthropic({
-        apiKey: apiKey,
-        modelName: "claude-3-haiku-20240307"
-      });
-    }
-    
-    // We'll update the system prompt with real data later
+    // Initialize base system prompt first
     this.baseSystemPrompt = `You are the Joule Finance assistant, an expert on the Joule Finance DeFi protocol built on the Aptos blockchain.
 Answer questions helpfully, accurately, and concisely.`;
     
@@ -78,6 +64,9 @@ Answer questions helpfully, accurately, and concisely.`;
       failedRequests: 0,
       lastRequest: null
     };
+    
+    // Call our anthropic client initialization method
+    this.initializeAnthropicClient();
   }
   
   async initialize() {
@@ -152,101 +141,110 @@ GUIDELINES FOR RESPONSES:
 All data is sourced from the Joule Finance protocol and is current as of ${new Date().toLocaleString()}.`;
   }
   
-  async processMessage(message, history, sessionId) {
-    // Update stats
+  async processMessage(message, messageHistory = [], sessionId = null) {
     this.stats.totalRequests++;
-    this.stats.lastRequest = new Date();
-
-    // Check if we're using the real model
-    if (!this.useRealModel) {
-      return this.getFallbackResponse(message);
-    }
+    this.stats.lastRequest = new Date().toISOString();
     
-    // Use the correct method from the knowledge base
-    const relevantInfo = knowledgeBase.getRelevantInfo(message);
-    let extraContext = '';
-    
-    // Add relevant knowledge as additional context
-    if (relevantInfo.relevant.faq && relevantInfo.relevant.faq.length > 0) {
-      extraContext += '\nRELEVANT FAQ:\n';
-      relevantInfo.relevant.faq.forEach(faq => {
-        extraContext += `Q: ${faq.question}\nA: ${faq.answer}\n\n`;
-      });
-    }
-    
-    if (relevantInfo.relevant.products) {
-      extraContext += '\nRELEVANT PRODUCTS:\n';
-      const products = Array.isArray(relevantInfo.relevant.products) ? 
-        relevantInfo.relevant.products : [relevantInfo.relevant.products];
-      
-      products.forEach(product => {
-        extraContext += `- ${product.name}: ${product.description}\n`;
-        if (product.features) {
-          extraContext += `  Features: ${product.features.join(', ')}\n`;
-        }
-      });
-    }
-    
-    if (relevantInfo.relevant.tokens) {
-      extraContext += '\nRELEVANT TOKENS:\n';
-      const tokens = Array.isArray(relevantInfo.relevant.tokens) ? 
-        relevantInfo.relevant.tokens : [relevantInfo.relevant.tokens];
-      
-      tokens.forEach(token => {
-        extraContext += `- ${token.symbol} (${token.name}): ${token.description}\n`;
-      });
-    }
-    
-    // Format conversation history for Anthropic
-    const messages = [
-      { 
-        role: "system", 
-        content: this.systemPrompt + (extraContext ? `\n\nADDITIONAL CONTEXT FOR THIS QUERY:\n${extraContext}` : '')
-      }
-    ];
-    
-    // Add conversation history (limited to last 10 messages to prevent context overflow)
-    const recentHistory = Array.isArray(history) ? history.slice(-10) : [];
-    
-    for (const msg of recentHistory) {
-      if (msg && typeof msg === 'object' && msg.content) {
-        messages.push({
-          role: msg.role === 'user' ? 'user' : 'assistant',
-          content: msg.content
-        });
-      }
-    }
-    
-    // Add the current message if not in history
-    if (!recentHistory.some(msg => msg.role === 'user' && msg.content === message)) {
-      messages.push({ role: "user", content: message });
-    }
-    
-    // Call Anthropic
     try {
       logger.info(`Processing message for session ${sessionId}: "${message}"`);
-      logger.info(`Using system prompt with ${this.systemPrompt.length} characters and ${extraContext ? extraContext.length : 0} chars of additional context`);
+      const systemPromptLength = this.systemPrompt ? this.systemPrompt.length : 0;
+      logger.info(`Using system prompt with ${systemPromptLength} characters and ${messageHistory.length} previous messages`);
       
-      const response = await this.anthropic.invoke(messages);
+      // Call Anthropic if API key is available
+      if (this.useRealModel && this.anthropic) {
+        try {
+          // Call our method to interact with Anthropic
+          return await this.callAnthropicAPI(message, messageHistory);
+        } catch (apiError) {
+          logger.error(`Anthropic API error: ${apiError.message}`);
+          this.stats.failedRequests++;
+          // Fall through to fallback response
+        }
+      }
       
-      this.stats.successfulRequests++;
-      return response.content;
+      // Fallback response (either by design or due to API error)
+      return this.getFallbackResponse(message);
     } catch (error) {
+      logger.error(`Error in processMessage: ${error.message}`);
       this.stats.failedRequests++;
-      logger.error("Error calling Anthropic:", error.message);
+      return "I apologize, but I encountered an error processing your request. Please try again.";
+    }
+  }
+  
+  // Create a separate method to call Anthropic API with the correct format
+  async callAnthropicAPI(message, messageHistory = []) {
+    try {
+      logger.info('Calling Anthropic API...');
+      logger.info(`Anthropic client keys: ${Object.keys(this.anthropic).join(', ')}`);
       
-      // Check for specific error types
-      if (error.error?.error?.type === 'not_found_error') {
-        this.useRealModel = false; // Disable real model after error
-        logger.error("Model not found. Check your model name and try again.");
-        return `Sorry, I encountered a configuration error (invalid model name). Falling back to mock responses.`;
+      // Check if Messages API is available
+      if (this.anthropic.messages && typeof this.anthropic.messages.create === 'function') {
+        logger.info('Trying Messages API with available models...');
+        
+        // Update model list to currently available models
+        const messagesApiModels = [
+          'claude-3-5-sonnet-20240307',    // Claude 3.5 Sonnet
+          'claude-3-5-sonnet-20241022',    // Claude 3.5 Sonnet 2024-10-22
+          'claude-3-opus-20240229',        // Claude 3 Opus
+          'claude-3-sonnet-20240229',      // Claude 3 Sonnet
+          'claude-3-haiku-20240307'        // Claude 3 Haiku
+        ];
+        
+        // Format messages correctly - IMPORTANT: Remove system role messages
+        const formattedMessages = messageHistory
+          .filter(msg => msg.role !== 'system') // Remove any system messages
+          .map(msg => ({
+            role: msg.role,
+            content: msg.content
+          }));
+        
+        // Add the current user message
+        formattedMessages.push({
+          role: 'user',
+          content: message
+        });
+        
+        // Try each model until one works
+        for (const model of messagesApiModels) {
+          try {
+            logger.info(`Attempting to use model: ${model} with Messages API`);
+            
+            // IMPORTANT FIX: Pass system prompt as top-level parameter
+            const response = await this.anthropic.messages.create({
+              model: model,
+              system: this.systemPrompt,    // System prompt as top-level parameter
+              messages: formattedMessages,
+              max_tokens: 1024
+            });
+            
+            logger.info(`Successfully used model: ${model} with Messages API`);
+            return response.content[0].text;
+          } catch (error) {
+            // Model not available, continue to next model
+            if (error.status === 404 || (error.message && error.message.includes('not_found_error'))) {
+              logger.info(`Model ${model} not available with Messages API, trying next...`);
+              continue;
+            }
+            
+            // Log error and continue trying other models
+            logger.error(`Error with model ${model}: ${error.message || JSON.stringify(error)}`);
+            continue;
+          }
+        }
+        
+        throw new Error('No compatible models available with Messages API');
       }
       
-      if (error.name === 'AbortError') {
-        return `I'm sorry, but the request timed out. Please try a shorter or simpler question.`;
-      }
+      // If messages API isn't available, try completions API
+      logger.info('Messages API not available or all models failed, trying completions API...');
       
-      return `I'm sorry, I encountered an error processing your request. ${error.message}`;
+      // Remaining completions API code would go here
+      // ...
+      
+      throw new Error('No API methods available');
+    } catch (error) {
+      logger.error(`Anthropic API error: ${error.message || JSON.stringify(error)}`);
+      return this.getFallbackResponse(message);
     }
   }
   
@@ -302,6 +300,44 @@ All data is sourced from the Joule Finance protocol and is current as of ${new D
       promptLength: this.systemPrompt?.length || 0,
       knowledgeBaseSize: Object.keys(knowledgeBase.getAllKnowledge() || {}).length
     };
+  }
+
+  // Fix the Anthropic client initialization to ensure messages API support
+  initializeAnthropicClient() {
+    try {
+      if (process.env.ANTHROPIC_API_KEY) {
+        logger.info(`Using real Anthropic API with key starting with: ${process.env.ANTHROPIC_API_KEY.substring(0, 7)}...`);
+        
+        // Create client with explicit configuration instead of relying on defaults
+        this.anthropic = new Anthropic({
+          apiKey: process.env.ANTHROPIC_API_KEY,
+          // Force specific API version for Messages API support
+          apiVersion: '2023-06-01', 
+          // Set reasonable timeouts
+          timeout: 30000, // 30 seconds
+          // Use production base URL explicitly
+          baseURL: 'https://api.anthropic.com',
+        });
+        
+        // Log available client features to debug
+        const clientFeatures = Object.keys(this.anthropic).join(', ');
+        logger.info(`Anthropic client initialized, structure: ${clientFeatures}`);
+        
+        // Check if messages API is supported
+        if (!this.anthropic.messages || typeof this.anthropic.messages.create !== 'function') {
+          logger.error('Anthropic SDK version does not support the Messages API. Please update to at least @anthropic-ai/sdk@0.7.0');
+          logger.info('Will attempt to use older Completions API as fallback, but Claude 3.x models require Messages API');
+        }
+        
+        this.useRealModel = true;
+      } else {
+        logger.info('No ANTHROPIC_API_KEY provided, using fallback response mode');
+        this.useRealModel = false;
+      }
+    } catch (error) {
+      logger.error(`Error initializing Anthropic client: ${error.message}`);
+      this.useRealModel = false;
+    }
   }
 }
 
@@ -364,7 +400,13 @@ app.post('/api/chat', async (req, res) => {
     await conversationService.addMessage(conversation.id, 'user', message);
     
     // Process message with the agent
-    const result = await agent.processMessage(message, [], sid);
+    let result = await agent.processMessage(message, [], sid);
+    
+    // Add null check for the response
+    if (result === null || result === undefined) {
+      console.error('Received null response from agent');
+      result = "I apologize, but I encountered an error generating a response. Please try again.";
+    }
     
     // Add assistant response to conversation
     await conversationService.addMessage(conversation.id, 'assistant', result);
@@ -378,7 +420,13 @@ app.post('/api/chat', async (req, res) => {
     
   } catch (error) {
     console.error('Error processing message:', error);
-    res.status(500).json({ error: 'Failed to process message' });
+    
+    // Return a graceful error response
+    return res.status(500).json({
+      success: false,
+      message: "Sorry, we're experiencing database connectivity issues. Please try again later.",
+      fallbackResponse: "I'm sorry, but I'm having trouble accessing my conversation history right now. Could you please try again?"
+    });
   }
 });
 

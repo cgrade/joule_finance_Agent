@@ -1,7 +1,7 @@
 import { TwitterApi, TwitterApiReadWrite } from 'twitter-api-v2';
 import { ChatAnthropic } from '@langchain/anthropic';
-import config from './config';
-import { JouleKnowledgeBase } from './knowledge/knowledge-base';
+import config from './config.js';
+import { JouleKnowledgeBase } from './knowledge/knowledge-base.js';
 import { HumanMessage } from '@langchain/core/messages';
 import chalk from 'chalk';
 

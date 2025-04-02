@@ -1,1 +1,1 @@
-export * from './chartGenerator';
+export * from './chartGenerator.js';

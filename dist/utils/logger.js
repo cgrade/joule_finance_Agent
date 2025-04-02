@@ -1,10 +1,7 @@
-"use strict";
 /**
  * Simple logger utility for Move Agent Kit
  */
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.logger = void 0;
-exports.logger = {
+export const logger = {
     info: (message, ...args) => {
         console.log(`[INFO] ${message}`, ...args);
     },
@@ -20,4 +17,3 @@ exports.logger = {
         }
     }
 };
-//# sourceMappingURL=logger.js.map

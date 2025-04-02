@@ -1,18 +1,15 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.createManagerAgent = void 0;
-const schema_1 = require("langchain/schema");
-const utils_1 = require("../state/utils");
-const llm_1 = require("../utils/llm");
+import { HumanMessage, AIMessage, FunctionMessage } from "@langchain/core/messages";
+import { pruneMessages } from "../state/utils.js";
+import { getLLM } from "../utils/llm.js";
 /**
  * Creates a manager agent that coordinates the workflow
  */
-const createManagerAgent = () => {
+export const createManagerAgent = () => {
     return async (state) => {
         // First prune messages to prevent accumulation
-        const latestMessages = (0, utils_1.pruneMessages)(state.messages || [], 20);
+        const latestMessages = pruneMessages(state.messages || [], 20);
         try {
-            const llm = (0, llm_1.getLLM)();
+            const llm = getLLM();
             const managerPrompt = `You are the manager of a professional crypto analytics team focused on Joule Finance on Aptos.
       Joule Finance is a comprehensive DeFi protocol on Aptos offering:
       - Money Market with isolated lending positions
@@ -29,8 +26,8 @@ const createManagerAgent = () => {
       
       Focus on helping create professional, fact-based content that highlights positive metrics and trends.
       Provide your response in a concise, professional manner.`;
-            const response = await llm.invoke([new schema_1.HumanMessage(managerPrompt)]);
-            const updatedMessages = [...latestMessages, new schema_1.AIMessage({
+            const response = await llm.invoke([new HumanMessage(managerPrompt)]);
+            const updatedMessages = [...latestMessages, new AIMessage({
                     content: response.content,
                     name: "manager_agent"
                 })];
@@ -45,7 +42,7 @@ const createManagerAgent = () => {
         catch (error) {
             // Always name error messages too
             return {
-                messages: [...state.messages || [], new schema_1.FunctionMessage({
+                messages: [...state.messages || [], new FunctionMessage({
                         content: JSON.stringify({ error: error.message }),
                         name: "manager_agent_error"
                     })],
@@ -55,6 +52,4 @@ const createManagerAgent = () => {
         }
     };
 };
-exports.createManagerAgent = createManagerAgent;
-exports.default = exports.createManagerAgent;
-//# sourceMappingURL=managerAgent.js.map
+export default createManagerAgent;

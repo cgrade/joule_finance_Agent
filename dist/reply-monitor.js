@@ -1,30 +1,27 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.TwitterReplyMonitor = void 0;
-const twitter_api_v2_1 = require("twitter-api-v2");
-const anthropic_1 = require("@langchain/anthropic");
-const config_1 = __importDefault(require("./config"));
-const knowledge_base_1 = require("./knowledge/knowledge-base");
-const messages_1 = require("@langchain/core/messages");
-const chalk_1 = __importDefault(require("chalk"));
+import { TwitterApi } from 'twitter-api-v2';
+import { ChatAnthropic } from '@langchain/anthropic';
+import config from './config.js';
+import { JouleKnowledgeBase } from './knowledge/knowledge-base.js';
+import { HumanMessage } from '@langchain/core/messages';
+import chalk from 'chalk';
 /**
  * Monitor and reply to Twitter mentions and comments
  */
-class TwitterReplyMonitor {
+export class TwitterReplyMonitor {
+    twitterClient = null;
+    knowledgeBase;
+    llm;
+    lastCheckedId = null;
+    myUserId;
+    lastErrorLogTime = 0;
+    isInitialized = false;
+    isDevelopmentMode = true;
     constructor() {
-        this.twitterClient = null;
-        this.lastCheckedId = null;
-        this.lastErrorLogTime = 0;
-        this.isInitialized = false;
-        this.isDevelopmentMode = true;
         // Initialize knowledge base
-        this.knowledgeBase = new knowledge_base_1.JouleKnowledgeBase();
+        this.knowledgeBase = new JouleKnowledgeBase();
         // Initialize LLM
-        this.llm = new anthropic_1.ChatAnthropic({
-            anthropicApiKey: config_1.default.llm.apiKey,
+        this.llm = new ChatAnthropic({
+            anthropicApiKey: config.llm.apiKey,
             modelName: "claude-3-sonnet-20240229"
         });
         // My Twitter user ID (will be populated during init)
@@ -36,25 +33,25 @@ class TwitterReplyMonitor {
     async initialize() {
         try {
             // Check if all required Twitter credentials are available
-            if (!config_1.default.twitter.apiKey || !config_1.default.twitter.apiSecret ||
-                !config_1.default.twitter.accessToken || !config_1.default.twitter.accessSecret) {
-                console.log(chalk_1.default.yellow('⚠️ Missing Twitter API credentials - Reply monitoring disabled'));
+            if (!config.twitter.apiKey || !config.twitter.apiSecret ||
+                !config.twitter.accessToken || !config.twitter.accessSecret) {
+                console.log(chalk.yellow('⚠️ Missing Twitter API credentials - Reply monitoring disabled'));
                 this.isDevelopmentMode = true;
                 return;
             }
-            this.twitterClient = new twitter_api_v2_1.TwitterApi({
-                appKey: config_1.default.twitter.apiKey,
-                appSecret: config_1.default.twitter.apiSecret,
-                accessToken: config_1.default.twitter.accessToken,
-                accessSecret: config_1.default.twitter.accessSecret
+            this.twitterClient = new TwitterApi({
+                appKey: config.twitter.apiKey,
+                appSecret: config.twitter.apiSecret,
+                accessToken: config.twitter.accessToken,
+                accessSecret: config.twitter.accessSecret
             });
             this.isInitialized = true;
             this.isDevelopmentMode = false;
-            console.log(chalk_1.default.green('✅ Twitter reply monitor initialized successfully'));
+            console.log(chalk.green('✅ Twitter reply monitor initialized successfully'));
         }
         catch (error) {
-            console.log(chalk_1.default.red(`✖️ Error initializing Twitter reply monitor: ${error.message}`));
-            console.log(chalk_1.default.yellow('⚠️ Reply monitoring will be disabled. App will continue in dev mode.'));
+            console.log(chalk.red(`✖️ Error initializing Twitter reply monitor: ${error.message}`));
+            console.log(chalk.yellow('⚠️ Reply monitoring will be disabled. App will continue in dev mode.'));
             this.isDevelopmentMode = true;
         }
     }
@@ -63,7 +60,7 @@ class TwitterReplyMonitor {
      */
     async startMonitoring(interval = 60000) {
         if (this.isDevelopmentMode || !this.twitterClient) {
-            console.log(chalk_1.default.blue('ℹ️ Reply monitoring skipped (development mode)'));
+            console.log(chalk.blue('ℹ️ Reply monitoring skipped (development mode)'));
             return;
         }
         try {
@@ -138,7 +135,7 @@ class TwitterReplyMonitor {
      */
     async processReply(tweet) {
         if (!this.twitterClient) {
-            console.log(chalk_1.default.yellow('⚠️ Cannot process reply (development mode): would reply to tweet ' + tweet.id_str));
+            console.log(chalk.yellow('⚠️ Cannot process reply (development mode): would reply to tweet ' + tweet.id_str));
             return;
         }
         try {
@@ -211,7 +208,7 @@ class TwitterReplyMonitor {
     6. Maintain a professional tone appropriate for a financial protocol
     
     Your response should be ONLY the reply text, nothing else.`;
-        const response = await this.llm.invoke([new messages_1.HumanMessage(prompt)]);
+        const response = await this.llm.invoke([new HumanMessage(prompt)]);
         let replyText = response.content;
         // Ensure the reply isn't too long for Twitter
         if (replyText.length > 280) {
@@ -224,7 +221,7 @@ class TwitterReplyMonitor {
      */
     async postReply(replyText, inReplyToId) {
         if (!this.twitterClient) {
-            console.log(chalk_1.default.yellow('⚠️ Cannot reply (development mode): would reply to tweet ' + inReplyToId));
+            console.log(chalk.yellow('⚠️ Cannot reply (development mode): would reply to tweet ' + inReplyToId));
             return;
         }
         try {
@@ -241,5 +238,3 @@ class TwitterReplyMonitor {
         }
     }
 }
-exports.TwitterReplyMonitor = TwitterReplyMonitor;
-//# sourceMappingURL=reply-monitor.js.map

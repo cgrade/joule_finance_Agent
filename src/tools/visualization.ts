@@ -116,8 +116,8 @@ export class ChartVisualizationTool extends StructuredTool {
       }
       
       // Format the data for QuickChart.io API
-      let chartData;
-      let datasets = [];
+      let chartData: { labels?: string[], datasets: Array<{ data: number[], backgroundColor: string[], borderColor: string, label: string }> } = { datasets: [] };
+      let datasets: Array<{ data: number[], backgroundColor: string[], borderColor: string, label: string }> = [];
       
       if (Array.isArray(args.data)) {
         // Single dataset with array data
@@ -141,6 +141,7 @@ export class ChartVisualizationTool extends StructuredTool {
         }];
         
         chartData = {
+          ...chartData,
           labels: labels
         };
       }

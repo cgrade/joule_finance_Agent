@@ -1,6 +1,6 @@
-import { JouleFinanceDataTool } from './tools/jouleFinanceDataTool';
-import { generateAssetDistributionChart } from './charts/chartGenerator';
-import { TwitterClient } from './clients/twitterClient';
+import { JouleFinanceDataTool } from './tools/jouleFinanceDataTool.js';
+import { generateAssetDistributionChart } from './charts/chartGenerator.js';
+import { TwitterClient } from './clients/twitterClient.js';
 
 async function testChartPost() {
   try {

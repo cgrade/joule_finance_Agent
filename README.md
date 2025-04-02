@@ -1,4 +1,23 @@
-# Joule Finance Twitter Agent
+# Joule Finance Assistant
+
+{% hint style="info" %}
+This documentation covers the AI assistant system for the Joule Finance protocol, including the chat interface and Twitter agent.
+{% endhint %}
+
+The Joule Finance Assistant is an AI-powered platform designed to provide information and support for users of the Joule Finance DeFi protocol on the Aptos blockchain.
+
+## Main Components
+
+1. **Joule Finance Chat**: A web-based chat interface for real-time assistance
+2. **Twitter Agent**: Automated social media presence
+3. **Knowledge Base**: Structured information about Joule Finance
+4. **API Backend**: Powers both interfaces with Anthropic Claude AI
+
+This documentation will guide you through setting up, configuring, and maintaining the Joule Finance Assistant.
+
+{% hint style="info" %}
+Last updated: March 2025
+{% endhint %}
 
 ## Overview
 

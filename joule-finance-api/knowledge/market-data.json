@@ -1,224 +1,193 @@
 {
     "overview": {
-        "marketSize": "$20,358,031.63",
-        "totalBorrowed": "$11,832,010.20",
-        "totalValueLocked": "$8,526,021.43",
-        "lastUpdated": "2023-03-15T00:00:00Z"
+        "marketSize": 20319686.38,
+        "totalBorrowed": 11721373.35,
+        "tvl": 8598313.03,
+        "lastUpdated": "2025-03-15T00:00:00Z"
     },
     "markets": [
         {
-            "token": "USDC",
-            "fullName": "Circle USDC",
-            "ltvRatio": "80%",
-            "supplied": {
-                "amount": "5.37M",
-                "value": "$5.37M"
-            },
-            "borrowed": {
-                "amount": "4.62M",
-                "value": "$4.62M"
-            },
-            "lendingAPR": "8.73%",
-            "borrowingAPR": "6.02%",
-            "hasBoost": true
+            "symbol": "USDC",
+            "name": "Circle USDC",
+            "collateralFactor": 0.8,
+            "supplied": 5420000,
+            "suppliedUSD": 5420000,
+            "borrowed": 4660000,
+            "borrowedUSD": 4660000,
+            "supplyAPY": 8.74,
+            "borrowAPY": 6.02,
+            "boosted": true,
+            "category": "Main Market"
         },
         {
-            "token": "USDt",
-            "fullName": "Tether USD",
-            "ltvRatio": "80%",
-            "supplied": {
-                "amount": "4.87M",
-                "value": "$4.87M"
-            },
-            "borrowed": {
-                "amount": "4.33M",
-                "value": "$4.33M"
-            },
-            "lendingAPR": "8.67%",
-            "borrowingAPR": "6.22%",
-            "hasBoost": true
+            "symbol": "USDt",
+            "name": "Tether USD",
+            "collateralFactor": 0.8,
+            "supplied": 4880000,
+            "suppliedUSD": 4880000,
+            "borrowed": 4330000,
+            "borrowedUSD": 4330000,
+            "supplyAPY": 8.70,
+            "borrowAPY": 6.22,
+            "boosted": true,
+            "category": "Main Market"
         },
         {
-            "token": "TruAPT",
-            "fullName": "TruFin APT",
-            "ltvRatio": "70%",
-            "supplied": {
-                "amount": "700.11K",
-                "value": "$3.8M"
-            },
-            "borrowed": {
-                "amount": "573.48",
-                "value": "$3.11K"
-            },
-            "lendingAPR": "0.00%",
-            "borrowingAPR": "0.00%",
-            "hasBoost": false
+            "symbol": "TruAPT",
+            "name": "TruFin APT",
+            "collateralFactor": 0.7,
+            "supplied": 700110,
+            "suppliedUSD": 3830000,
+            "borrowed": 645.97,
+            "borrowedUSD": 3530,
+            "supplyAPY": 0,
+            "borrowAPY": 0,
+            "boosted": false,
+            "category": "Main Market"
         },
         {
-            "token": "APT",
-            "fullName": "AptosCoin",
-            "ltvRatio": "70%",
-            "supplied": {
-                "amount": "415.05K",
-                "value": "$2.15M"
-            },
-            "borrowed": {
-                "amount": "363.94K",
-                "value": "$1.89M"
-            },
-            "lendingAPR": "2.15%",
-            "borrowingAPR": "3.51%",
-            "hasBoost": false
+            "symbol": "APT",
+            "name": "AptosCoin",
+            "collateralFactor": 0.7,
+            "supplied": 421160,
+            "suppliedUSD": 2200000,
+            "borrowed": 369040,
+            "borrowedUSD": 1930000,
+            "supplyAPY": 2.15,
+            "borrowAPY": 3.51,
+            "boosted": false,
+            "category": "Main Market"
         },
         {
-            "token": "WETH",
-            "fullName": "LayerZero WETH",
-            "ltvRatio": "70%",
-            "supplied": {
-                "amount": "428.94",
-                "value": "$820.71K"
-            },
-            "borrowed": {
-                "amount": "200.51",
-                "value": "$383.65K"
-            },
-            "lendingAPR": "5.47%",
-            "borrowingAPR": "1.87%",
-            "hasBoost": true
+            "symbol": "WETH",
+            "name": "LayerZero WETH",
+            "collateralFactor": 0.7,
+            "supplied": 428.95,
+            "suppliedUSD": 822520,
+            "borrowed": 200.32,
+            "borrowedUSD": 384120,
+            "supplyAPY": 5.50,
+            "borrowAPY": 1.87,
+            "boosted": true,
+            "category": "Main Market"
         },
         {
-            "token": "amAPT",
-            "fullName": "Amnis Finance",
-            "ltvRatio": "70%",
-            "supplied": {
-                "amount": "248.06",
-                "value": "$1.29K"
-            },
-            "borrowed": {
-                "amount": "194.71",
-                "value": "$1.01K"
-            },
-            "lendingAPR": "1.73%",
-            "borrowingAPR": "3.14%",
-            "hasBoost": false
+            "symbol": "amAPT",
+            "name": "Amnis Finance",
+            "collateralFactor": 0.7,
+            "supplied": 247.97,
+            "suppliedUSD": 1300,
+            "borrowed": 193.37,
+            "borrowedUSD": 1010,
+            "supplyAPY": 1.70,
+            "borrowAPY": 3.12,
+            "boosted": false,
+            "category": "Main Market"
         },
         {
-            "token": "stAPT",
-            "fullName": "Amnis Finance",
-            "ltvRatio": "70%",
-            "supplied": {
-                "amount": "541.44K",
-                "value": "$3.16M"
-            },
-            "borrowed": {
-                "amount": "96.8K",
-                "value": "$564.79K"
-            },
-            "lendingAPR": "12.88%",
-            "borrowingAPR": "0.72%",
-            "hasBoost": true
+            "symbol": "stAPT",
+            "name": "Amnis Finance",
+            "collateralFactor": 0.7,
+            "supplied": 506290,
+            "suppliedUSD": 2980000,
+            "borrowed": 61880,
+            "borrowedUSD": 364140,
+            "supplyAPY": 10.87,
+            "borrowAPY": 0.49,
+            "boosted": true,
+            "category": "Main Market"
         },
         {
-            "token": "WBTC",
-            "fullName": "LayerZero WBTC",
-            "ltvRatio": "60%",
-            "supplied": {
-                "amount": "0.27",
-                "value": "$22.48K"
-            },
-            "borrowed": {
-                "amount": "0.13",
-                "value": "$11.3K"
-            },
-            "lendingAPR": "19.92%",
-            "borrowingAPR": "2.01%",
-            "hasBoost": true
+            "symbol": "WBTC",
+            "name": "LayerZero WBTC",
+            "collateralFactor": 0.6,
+            "supplied": 0.29,
+            "suppliedUSD": 24550,
+            "borrowed": 0.13,
+            "borrowedUSD": 11370,
+            "supplyAPY": 18.34,
+            "borrowAPY": 1.85,
+            "boosted": true,
+            "category": "Main Market"
         },
         {
-            "token": "aBTC",
-            "fullName": "Echo Protocol",
-            "ltvRatio": "45%",
-            "supplied": {
-                "amount": "0",
-                "value": "$201.42"
-            },
-            "borrowed": {
-                "amount": "0",
-                "value": "$113.87"
-            },
-            "lendingAPR": "15.05%",
-            "borrowingAPR": "37.73%",
-            "hasBoost": false
+            "symbol": "aBTC",
+            "name": "Echo Protocol",
+            "collateralFactor": 0.45,
+            "supplied": 0,
+            "suppliedUSD": 203.49,
+            "borrowed": 0,
+            "borrowedUSD": 115.45,
+            "supplyAPY": 15.47,
+            "borrowAPY": 38.59,
+            "boosted": false,
+            "category": "Main Market"
         },
         {
-            "token": "eAPT",
-            "fullName": "Echo Protocol",
-            "ltvRatio": "70%",
-            "supplied": {
-                "amount": "24.68K",
-                "value": "$129.93K"
-            },
-            "borrowed": {
-                "amount": "767.61",
-                "value": "$4.04K"
-            },
-            "lendingAPR": "0.00%",
-            "borrowingAPR": "0.12%",
-            "hasBoost": false
+            "symbol": "eAPT",
+            "name": "Echo Protocol",
+            "collateralFactor": 0.7,
+            "supplied": 24220,
+            "suppliedUSD": 128580,
+            "borrowed": 684.61,
+            "borrowedUSD": 3630,
+            "supplyAPY": 0,
+            "borrowAPY": 0.11,
+            "boosted": false,
+            "category": "Main Market"
         },
         {
-            "token": "sthAPT",
-            "fullName": "Thala",
-            "ltvRatio": "70%",
-            "supplied": {
-                "amount": "18.44",
-                "value": "$109.14"
-            },
-            "borrowed": {
-                "amount": "0",
-                "value": "$0"
-            },
-            "lendingAPR": "7.27%",
-            "borrowingAPR": "0.00%",
-            "hasBoost": true
+            "symbol": "sthAPT",
+            "name": "Thala",
+            "collateralFactor": 0.7,
+            "supplied": 25.3,
+            "suppliedUSD": 151.02,
+            "borrowed": 0,
+            "borrowedUSD": 0,
+            "supplyAPY": 7.27,
+            "borrowAPY": 0,
+            "boosted": true,
+            "category": "Main Market"
         },
         {
-            "token": "USDC (LayerZero)",
-            "fullName": "LayerZero USDC",
-            "ltvRatio": "80%",
-            "supplied": {
-                "amount": "27.13K",
-                "value": "$27.13K"
-            },
-            "borrowed": {
-                "amount": "22.9K",
-                "value": "$22.9K"
-            },
-            "lendingAPR": "3.50%",
-            "borrowingAPR": "5.91%",
-            "hasBoost": false
+            "symbol": "USDC",
+            "name": "LayerZero USDC",
+            "collateralFactor": 0.8,
+            "supplied": 28030,
+            "suppliedUSD": 28030,
+            "borrowed": 23390,
+            "borrowedUSD": 23390,
+            "supplyAPY": 3.42,
+            "borrowAPY": 5.85,
+            "boosted": false,
+            "category": "Main Market"
         },
         {
-            "token": "USDT (LayerZero)",
-            "fullName": "LayerZero USDT",
-            "ltvRatio": "80%",
-            "supplied": {
-                "amount": "6.52K",
-                "value": "$6.52K"
-            },
-            "borrowed": {
-                "amount": "3.97K",
-                "value": "$3.97K"
-            },
-            "lendingAPR": "2.95%",
-            "borrowingAPR": "5.43%",
-            "hasBoost": false
+            "symbol": "USDT",
+            "name": "LayerZero USDT",
+            "collateralFactor": 0.8,
+            "supplied": 6530,
+            "suppliedUSD": 6530,
+            "borrowed": 4410,
+            "borrowedUSD": 4410,
+            "supplyAPY": 3.65,
+            "borrowAPY": 6.04,
+            "boosted": false,
+            "category": "Main Market"
         }
     ],
-    "features": [
-        "Main Markets",
-        "Isolated Markets",
-        "Efficiency Mode",
-        "Reward Claiming"
-    ]
+    "features": {
+        "availableFeatures": [
+            "Bridge",
+            "Money-Market",
+            "Portfolio",
+            "Rewards",
+            "Hooks"
+        ],
+        "marketCategories": [
+            "Main-Markets",
+            "Isolated-Markets",
+            "Efficiency Mode"
+        ]
+    }
 }

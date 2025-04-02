@@ -1,5 +1,5 @@
-import { ChartVisualizationTool } from './visualization';
-import { XPostResult } from '../types';
+import { ChartVisualizationTool } from "./visualization.js";
+import { XPostResult } from "../types/index.js";
 /**
  * Tool for posting professional content to X/Twitter
  */

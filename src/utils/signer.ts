@@ -17,7 +17,7 @@ import {
     InputEntryFunctionData,
     TransactionResponse
   } from '@aptos-labs/ts-sdk';
-import { logger } from './logger';
+import { logger } from './logger.js';
   
   /**
    * LocalSigner for signing Aptos transactions

@@ -1,5 +1,5 @@
-import { BaseChart } from "./BaseChart";
-import { MarketData } from "../tools/jouleFinanceDataTool";
+import { BaseChart } from "./BaseChart.js";
+import { MarketData } from "../tools/jouleFinanceDataTool.js";
 import { Canvas } from "canvas";
 
 export class RiskAdjustedReturnChart extends BaseChart {

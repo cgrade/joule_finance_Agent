@@ -1,20 +1,17 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.createReaderAgent = void 0;
-const messages_1 = require("@langchain/core/messages");
-const utils_1 = require("../state/utils");
-const llm_1 = require("../utils/llm");
+import { HumanMessage, FunctionMessage } from "@langchain/core/messages";
+import { pruneMessages, logStateSize } from "../state/utils.js";
+import { getLLM } from "../utils/llm.js";
 /**
  * Creates a data reader agent that fetches Joule Finance metrics
  */
-const createReaderAgent = (jouleFinanceReader) => {
+export const createReaderAgent = (jouleFinanceReader) => {
     return async (state) => {
         // First prune messages to prevent accumulation
-        const messages = (0, utils_1.pruneMessages)(state.messages || [], 20);
+        const messages = pruneMessages(state.messages || [], 20);
         // Log state size for debugging
-        (0, utils_1.logStateSize)({ messages, lastPostTime: state.lastPostTime, metrics: state.metrics }, 'reader_agent:start');
+        logStateSize({ messages, lastPostTime: state.lastPostTime, metrics: state.metrics }, 'reader_agent:start');
         try {
-            const llm = (0, llm_1.getLLM)();
+            const llm = getLLM();
             // Determine which metrics to fetch based on the request
             const prompt = `You are an on-chain data analyst specialized in Joule Finance on Aptos.
       Your job is to determine which metrics would be most relevant and bullish to fetch based on this request:
@@ -30,7 +27,7 @@ const createReaderAgent = (jouleFinanceReader) => {
       
       Do not include any explanation, just the JSON array.
       `;
-            const response = await llm.invoke([new messages_1.HumanMessage(prompt)]);
+            const response = await llm.invoke([new HumanMessage(prompt)]);
             // Extract the JSON array from the response
             let metricsToFetch;
             try {
@@ -69,7 +66,7 @@ const createReaderAgent = (jouleFinanceReader) => {
                     : state.metrics?.apy
             };
             // Ensure new messages are named
-            const newMessages = [...messages, new messages_1.FunctionMessage({
+            const newMessages = [...messages, new FunctionMessage({
                     content: JSON.stringify(results),
                     name: "reader_agent"
                 })];
@@ -82,7 +79,7 @@ const createReaderAgent = (jouleFinanceReader) => {
         catch (error) {
             console.error('Error in reader agent:', error);
             return {
-                messages: [...messages, new messages_1.FunctionMessage({
+                messages: [...messages, new FunctionMessage({
                         content: JSON.stringify({ error: error.message }),
                         name: "reader_agent_error"
                     })],
@@ -92,6 +89,4 @@ const createReaderAgent = (jouleFinanceReader) => {
         }
     };
 };
-exports.createReaderAgent = createReaderAgent;
-exports.default = exports.createReaderAgent;
-//# sourceMappingURL=readerAgent.js.map
+export default createReaderAgent;

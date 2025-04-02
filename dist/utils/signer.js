@@ -1,18 +1,17 @@
-"use strict";
 /**
  * LocalSigner implementation for Move Agent Kit
  *
  * This module provides a signer implementation for the Aptos blockchain
  * that can be used with the Move Agent Kit.
  */
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.LocalSigner = void 0;
-const ts_sdk_1 = require("@aptos-labs/ts-sdk");
-const logger_1 = require("./logger");
+import { Account, Aptos, AptosConfig, Ed25519PrivateKey } from '@aptos-labs/ts-sdk';
+import { logger } from './logger.js';
 /**
  * LocalSigner for signing Aptos transactions
  */
-class LocalSigner {
+export class LocalSigner {
+    account;
+    aptosClient;
     /**
      * Creates a new LocalSigner instance
      *
@@ -22,16 +21,16 @@ class LocalSigner {
      */
     constructor(privateKey, network, nodeUrl) {
         // Create Aptos config
-        const aptosConfig = new ts_sdk_1.AptosConfig({
+        const aptosConfig = new AptosConfig({
             network,
             ...(nodeUrl && { fullnodeUrl: nodeUrl })
         });
         // Create Aptos client
-        this.aptosClient = new ts_sdk_1.Aptos(aptosConfig);
+        this.aptosClient = new Aptos(aptosConfig);
         // Create private key instance
-        const privKey = new ts_sdk_1.Ed25519PrivateKey(privateKey);
+        const privKey = new Ed25519PrivateKey(privateKey);
         // Create account from private key
-        this.account = ts_sdk_1.Account.fromPrivateKey({ privateKey: privKey });
+        this.account = Account.fromPrivateKey({ privateKey: privKey });
     }
     /**
      * Get the account address
@@ -83,7 +82,7 @@ class LocalSigner {
             return pendingTx;
         }
         catch (error) {
-            logger_1.logger.error('Error signing and submitting transaction:', error);
+            logger.error('Error signing and submitting transaction:', error);
             throw new Error(`Failed to sign and submit transaction: ${error.message}`);
         }
     }
@@ -108,5 +107,3 @@ class LocalSigner {
         }
     }
 }
-exports.LocalSigner = LocalSigner;
-//# sourceMappingURL=signer.js.map

@@ -125,7 +125,7 @@ export class ChartVisualizationTool {
     
     assetNames.forEach((asset, i) => {
       const apr = assets[asset].apr || 0;
-      const points = [];
+      const points: { x: number; y: number }[] = [];
       
       // Generate some fake historical points based on current APR
       for (let j = 0; j < 10; j++) {

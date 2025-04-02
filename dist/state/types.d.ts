@@ -1,4 +1,4 @@
-import { BaseMessage } from "langchain/schema";
+import { BaseMessage } from "@langchain/core/messages";
 /**
  * Core state interface for the poster agent system
  */

@@ -1,4 +1,4 @@
-import { PosterState } from "../state/types";
+import { PosterState } from "../state/types.js";
 /**
  * Creates a manager agent that coordinates the workflow
  */

@@ -1,8 +1,8 @@
-import { HumanMessage, FunctionMessage } from "langchain/schema";
-import { PosterState } from "../state/types";
-import { pruneMessages, logStateSize } from "../state/utils";
-import { getLLM } from "../utils/llm";
-import { JouleKnowledgeBase } from "../tools/knowledgeBase";
+import { HumanMessage, FunctionMessage } from "@langchain/core/messages";
+import { PosterState } from "../state/types.js";
+import { pruneMessages, logStateSize } from "../state/utils.js";
+import { getLLM } from "../utils/llm.js";
+import { JouleKnowledgeBase } from "../tools/knowledgeBase.js";
 
 /**
  * Creates a content writer agent that generates professional posts about Joule Finance

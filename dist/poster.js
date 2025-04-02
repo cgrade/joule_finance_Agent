@@ -1,4 +1,3 @@
-"use strict";
 /**
  * Joule Finance X/Twitter Professional Posting Agent
  *
@@ -7,40 +6,35 @@
  *
  * Built for the Aptos/Move hackathon using Move Agent Kit.
  */
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.runAsBullishPoster = exports.createBullishPostSystem = void 0;
-const messages_1 = require("@langchain/core/messages");
-const runtime_1 = require("./agent/runtime");
-const signer_1 = require("./utils/signer");
-const config_1 = __importDefault(require("./config"));
-const workflow_1 = require("./workflow");
-const tools_1 = require("./tools");
+import { HumanMessage } from "@langchain/core/messages";
+import { AgentRuntime } from "./agent/runtime.js";
+import { LocalSigner } from "./utils/signer.js";
+import config from "./config.js";
+import { buildPosterWorkflow } from "./workflow/index.js";
+import { JouleFinanceDataTool, ChartVisualizationTool, XProfessionalPostTool, JouleKnowledgeBase } from "./tools/index.js";
 /**
  * Initialize the Joule Finance poster system
  */
-const createBullishPostSystem = async () => {
+export const createBullishPostSystem = async () => {
     try {
         console.log('Initializing Joule Finance bullish post system...');
         // Initialize agent runtime
         const agentRuntime = await initializeAgentRuntime();
         // Initialize Joule Finance tools
-        const jouleFinanceTool = new tools_1.JouleFinanceDataTool(agentRuntime);
-        const visualizationTool = new tools_1.ChartVisualizationTool();
+        const jouleFinanceTool = new JouleFinanceDataTool(agentRuntime);
+        const visualizationTool = new ChartVisualizationTool();
         // Use the XProfessionalPostTool from the tools module instead of defining it here
-        const xPostTool = new tools_1.XProfessionalPostTool(visualizationTool);
-        const knowledgeBase = new tools_1.JouleKnowledgeBase();
+        const xPostTool = new XProfessionalPostTool(visualizationTool);
+        const knowledgeBase = new JouleKnowledgeBase();
         // Build the workflow
-        const app = (0, workflow_1.buildPosterWorkflow)(jouleFinanceTool, xPostTool, knowledgeBase);
+        const app = buildPosterWorkflow(jouleFinanceTool, xPostTool, knowledgeBase);
         // Return a function that uses the app directly
         return async (userInput) => {
             const startTime = Date.now();
             try {
                 console.log(`Processing request: ${userInput}`);
                 // Initialize with a properly named HumanMessage
-                const initialMessage = new messages_1.HumanMessage({
+                const initialMessage = new HumanMessage({
                     content: userInput,
                     name: "user_input"
                 });
@@ -64,17 +58,16 @@ const createBullishPostSystem = async () => {
         throw error;
     }
 };
-exports.createBullishPostSystem = createBullishPostSystem;
 /**
  * Initialize Move Agent Kit runtime
  */
 const initializeAgentRuntime = async () => {
     try {
         // Create local signer
-        const signer = new signer_1.LocalSigner(config_1.default.aptos.privateKey, config_1.default.aptos.network, config_1.default.aptos.nodeUrl);
+        const signer = new LocalSigner(config.aptos.privateKey, config.aptos.network, config.aptos.nodeUrl);
         // Create agent runtime
-        const agent = new runtime_1.AgentRuntime(signer, {
-            ANTHROPIC_API_KEY: config_1.default.llm.apiKey,
+        const agent = new AgentRuntime(signer, {
+            ANTHROPIC_API_KEY: config.llm.apiKey,
         });
         return agent;
     }
@@ -86,12 +79,12 @@ const initializeAgentRuntime = async () => {
 /**
  * Script for running the system as a standalone process
  */
-const runAsBullishPoster = async (userInput) => {
+export const runAsBullishPoster = async (userInput) => {
     try {
         // Use provided input or default
         const input = userInput || "Create a professional bull post about Joule Finance's performance this week";
         // Create and run the system
-        const createBullishPost = await (0, exports.createBullishPostSystem)();
+        const createBullishPost = await createBullishPostSystem();
         const result = await createBullishPost(input);
         // Print the result
         console.log('\nFINAL RESULT:');
@@ -115,7 +108,5 @@ const runAsBullishPoster = async (userInput) => {
         console.error('Error running the application:', error);
     }
 };
-exports.runAsBullishPoster = runAsBullishPoster;
 // Export default for module imports
-exports.default = { createBullishPostSystem: exports.createBullishPostSystem, runAsBullishPoster: exports.runAsBullishPoster };
-//# sourceMappingURL=poster.js.map
+export default { createBullishPostSystem, runAsBullishPoster };

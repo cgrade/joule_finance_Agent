@@ -1,10 +1,8 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.JouleFinanceDataTool = void 0;
 /**
  * Tool for fetching and processing Joule Finance blockchain data
  */
-class JouleFinanceDataTool {
+export class JouleFinanceDataTool {
+    agentRuntime;
     constructor(agentRuntime) {
         this.agentRuntime = agentRuntime;
     }
@@ -135,6 +133,4 @@ class JouleFinanceDataTool {
         }
     }
 }
-exports.JouleFinanceDataTool = JouleFinanceDataTool;
-exports.default = JouleFinanceDataTool;
-//# sourceMappingURL=jouleFinance.js.map
+export default JouleFinanceDataTool;

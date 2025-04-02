@@ -1,4 +1,4 @@
-import { ChatAnthropic } from "langchain/chat_models/anthropic";
+import { ChatAnthropic } from "@langchain/anthropic";
 /**
  * Get configured LLM instance for the agent
  */

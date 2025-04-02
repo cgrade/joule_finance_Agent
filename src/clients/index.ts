@@ -1,1 +1,1 @@
-export * from './twitterClient'; 
+export * from './twitterClient.js'; 

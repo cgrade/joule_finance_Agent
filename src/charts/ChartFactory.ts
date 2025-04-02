@@ -1,9 +1,9 @@
-import { ChartType, Chart } from "./types";
-import { MarketData } from "../tools/jouleFinanceDataTool";
-import { AssetDistributionChart } from "./AssetDistributionChart";
-import { AprsComparisonChart } from "./AprsComparisonChart";
-import { TvlTrendChart } from "./TvlTrendChart";
-import { RiskAdjustedReturnChart } from "./RiskAdjustedReturnChart";
+import { ChartType, Chart } from "./types.js";
+import { MarketData } from "../tools/jouleFinanceDataTool.js";
+import { AssetDistributionChart } from "./AssetDistributionChart.js";
+import { AprsComparisonChart } from "./AprsComparisonChart.js";
+import { TvlTrendChart } from "./TvlTrendChart.js";
+import { RiskAdjustedReturnChart } from "./RiskAdjustedReturnChart.js";
 
 export class ChartFactory {
   static createChart(type: ChartType, data: MarketData): Chart {

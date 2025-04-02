@@ -1,29 +1,25 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.JouleFinanceDataTool = void 0;
-const axios_1 = __importDefault(require("axios"));
-const chalk_1 = __importDefault(require("chalk"));
-const config_1 = __importDefault(require("../config"));
-class JouleFinanceDataTool {
+import axios from "axios";
+import chalk from "chalk";
+import config from "../config.js";
+export class JouleFinanceDataTool {
+    runtime;
+    endpoint;
+    contractAddress = "0x2fe576faa841347a9b1b32c869685deb75a15e3f62dfe37cbd6d52cc403a16f6";
+    // Hardcoded values (moved from scraper.ts)
+    FALLBACK_TVL = 8442656.94;
+    FALLBACK_MARKET_SIZE = 20276452.75;
+    FALLBACK_BORROWED = 11833795.80;
+    FALLBACK_APR = 5.21;
+    FALLBACK_USERS = 3200;
     constructor(runtime) {
         this.runtime = runtime;
-        this.contractAddress = "0x2fe576faa841347a9b1b32c869685deb75a15e3f62dfe37cbd6d52cc403a16f6";
-        // Hardcoded values (moved from scraper.ts)
-        this.FALLBACK_TVL = 9949126.35;
-        this.FALLBACK_MARKET_SIZE = 12500000;
-        this.FALLBACK_BORROWED = 2550873.65;
-        this.FALLBACK_APR = 3.87;
-        this.FALLBACK_USERS = 2800;
-        this.endpoint = config_1.default.APTOS_ENDPOINT || "https://fullnode.mainnet.aptoslabs.com/v1";
+        this.endpoint = config.APTOS_ENDPOINT || "https://fullnode.mainnet.aptoslabs.com/v1";
         console.log(`Initialized Joule Finance data tool with endpoint: ${this.endpoint}`);
     }
     async getData() {
-        console.log(chalk_1.default.blue("🔍 Fetching Joule Finance data..."));
+        console.log(chalk.blue("🔍 Fetching Joule Finance data..."));
         // Skip blockchain query and go straight to fallback data
-        console.log(chalk_1.default.yellow("⚠️ Using hardcoded data for Joule Finance (blockchain query disabled)"));
+        console.log(chalk.yellow("⚠️ Using hardcoded data for Joule Finance (blockchain query disabled)"));
         return this.getFallbackData();
         /*
         // Original blockchain query code (commented out as requested)
@@ -52,15 +48,15 @@ class JouleFinanceDataTool {
     async fetchBlockchainData() {
         // Original blockchain query code (unchanged)
         try {
-            console.log(chalk_1.default.blue("🔍 Querying Aptos blockchain..."));
+            console.log(chalk.blue("🔍 Querying Aptos blockchain..."));
             // Get resources from the contract
             const resourcesUrl = `${this.endpoint}/accounts/${this.contractAddress}/resources`;
-            const response = await axios_1.default.get(resourcesUrl, {
+            const response = await axios.get(resourcesUrl, {
                 timeout: 10000 // 10 second timeout
             });
             if (response.data && Array.isArray(response.data)) {
                 const resources = response.data;
-                console.log(chalk_1.default.green(`✅ Found ${resources.length} resources on chain`));
+                console.log(chalk.green(`✅ Found ${resources.length} resources on chain`));
                 // Process resources to extract TVL, users, etc.
                 // This is a simplified version that extracts what we can from the blockchain
                 // Extract coin resources for TVL calculation
@@ -110,7 +106,7 @@ class JouleFinanceDataTool {
                 // If we found a reasonable TVL value on chain, create a MarketData object
                 if (totalTVL > 0) {
                     // Get blockchain timestamp for proof
-                    const blockchainInfo = await axios_1.default.get(this.endpoint);
+                    const blockchainInfo = await axios.get(this.endpoint);
                     const ledgerVersion = blockchainInfo.data?.ledger_version || "unknown";
                     // Calculate weighted average APR
                     let totalWeightedAPR = 0;
@@ -138,27 +134,87 @@ class JouleFinanceDataTool {
             return null;
         }
         catch (error) {
-            console.error(chalk_1.default.red("❌ Error processing blockchain data:"), error);
+            console.error(chalk.red("❌ Error processing blockchain data:"), error);
             return null;
         }
     }
     /**
-     * Get reliable fallback data directly from hardcoded values
+     * Provides fallback data based on current Joule Finance metrics
+     * Updated with real data from the website
      */
     getFallbackData() {
-        // Calculate some derived values from our hardcoded constants
+        // Updated TVL from website: $8,442,656.94
         const tvl = this.FALLBACK_TVL;
-        const apr = this.FALLBACK_APR;
-        const users = this.FALLBACK_USERS;
-        const volume24h = tvl * 0.08; // Estimated daily volume as 8% of TVL
-        // Generate asset breakdown with realistic distribution
-        const assets = this.generateAssetDistribution(tvl);
+        // Asset data updated directly from the Joule Finance website
+        const assets = {
+            'USDC': {
+                tvl: 5400000,
+                apr: 6.02
+            },
+            'USDt': {
+                tvl: 4880000,
+                apr: 6.22
+            },
+            'TruAPT': {
+                tvl: 3740000,
+                apr: 0.00
+            },
+            'APT': {
+                tvl: 2120000,
+                apr: 3.52
+            },
+            'WETH': {
+                tvl: 816210,
+                apr: 1.87
+            },
+            'amAPT': {
+                tvl: 1270,
+                apr: 3.12
+            },
+            'stAPT': {
+                tvl: 3130000,
+                apr: 0.72
+            },
+            'WBTC': {
+                tvl: 22220,
+                apr: 2.00
+            },
+            'aBTC': {
+                tvl: 198.29,
+                apr: 37.73
+            },
+            'eAPT': {
+                tvl: 128220,
+                apr: 0.12
+            },
+            'sthAPT': {
+                tvl: 107.67,
+                apr: 0.00
+            },
+            'USDC_LZ': {
+                tvl: 27130,
+                apr: 6.04
+            },
+            'USDT_LZ': {
+                tvl: 6710,
+                apr: 5.24
+            }
+        };
+        // Calculate weighted average APR
+        let totalValue = 0;
+        let weightedApr = 0;
+        Object.values(assets).forEach(asset => {
+            totalValue += asset.tvl;
+            weightedApr += asset.tvl * asset.apr;
+        });
+        const avgApr = weightedApr / totalValue;
+        // Total protocol stats from website
         return {
-            tvl,
-            apr,
-            users,
-            volume24h,
-            assets,
+            tvl: tvl,
+            apr: avgApr,
+            assets: assets,
+            users: 4200, // Estimated active users
+            volume24h: 1250000, // Estimated 24h volume
             dataSource: "fallback",
             lastUpdated: new Date().toISOString()
         };
@@ -188,5 +244,3 @@ class JouleFinanceDataTool {
         return assets;
     }
 }
-exports.JouleFinanceDataTool = JouleFinanceDataTool;
-//# sourceMappingURL=jouleFinanceDataTool.js.map

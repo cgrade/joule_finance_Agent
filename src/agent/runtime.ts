@@ -17,8 +17,8 @@ import {
     CommittedTransactionResponse,
     InputEntryFunctionData
   } from '@aptos-labs/ts-sdk';
-  import { LocalSigner } from '../utils/signer';
-  import { logger } from '../utils/logger';
+import { LocalSigner } from '../utils/signer.js';
+import { logger } from '../utils/logger.js';
   
   /**
    * Agent options interface

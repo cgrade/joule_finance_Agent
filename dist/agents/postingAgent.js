@@ -1,20 +1,17 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.createPostingAgent = void 0;
-const schema_1 = require("langchain/schema");
-const utils_1 = require("../state/utils");
+import { FunctionMessage } from "@langchain/core/messages";
+import { pruneMessages, logStateSize } from "../state/utils.js";
 /**
  * Creates a posting agent that posts content to social media
  */
-const createPostingAgent = (xPoster) => {
+export const createPostingAgent = (xPoster) => {
     return async (state) => {
-        const messages = (0, utils_1.pruneMessages)(state.messages || [], 20);
-        (0, utils_1.logStateSize)({ messages, lastPostTime: state.lastPostTime, metrics: state.metrics }, 'posting_agent:start');
+        const messages = pruneMessages(state.messages || [], 20);
+        logStateSize({ messages, lastPostTime: state.lastPostTime, metrics: state.metrics }, 'posting_agent:start');
         console.log(`Posting agent received ${messages.length} messages`);
         console.log(`Message types: ${messages.map(m => m.name || 'unnamed').join(', ')}`);
         try {
-            // Find the most recent writer agent message
-            const latestWriterMessage = messages.findLast(msg => msg.name === 'writer_agent');
+            // Find the most recent writer agent message using reverse() and find() instead of findLast
+            const latestWriterMessage = [...messages].reverse().find(msg => msg.name === 'writer_agent');
             if (!latestWriterMessage) {
                 throw new Error('No writer agent message found in state');
             }
@@ -24,7 +21,7 @@ const createPostingAgent = (xPoster) => {
             const result = await xPoster.postTweet(content);
             // Update lastPostTime if successful
             const newLastPostTime = result.success ? new Date() : state.lastPostTime;
-            const updatedMessages = [...messages, new schema_1.FunctionMessage({
+            const updatedMessages = [...messages, new FunctionMessage({
                     content: JSON.stringify(result),
                     name: "posting_agent"
                 })];
@@ -37,7 +34,7 @@ const createPostingAgent = (xPoster) => {
         catch (error) {
             console.error('Error in posting agent:', error);
             return {
-                messages: [...messages, new schema_1.FunctionMessage({
+                messages: [...messages, new FunctionMessage({
                         content: JSON.stringify({
                             success: false,
                             error: error.message
@@ -50,6 +47,4 @@ const createPostingAgent = (xPoster) => {
         }
     };
 };
-exports.createPostingAgent = createPostingAgent;
-exports.default = exports.createPostingAgent;
-//# sourceMappingURL=postingAgent.js.map
+export default createPostingAgent;

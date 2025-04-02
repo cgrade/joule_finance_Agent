@@ -1,8 +1,13 @@
-import { Chart } from "./types";
-import { MarketData } from "../tools/jouleFinanceDataTool";
+import { Chart } from "./types.js";
+import { MarketData } from "../tools/jouleFinanceDataTool.js";
 import { Canvas, createCanvas, CanvasRenderingContext2D } from "canvas";
 import * as fs from 'fs';
 import * as path from 'path';
+import { fileURLToPath } from 'url';
+
+// Add this to the top of your file
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Base abstract chart class
 export abstract class BaseChart implements Chart {

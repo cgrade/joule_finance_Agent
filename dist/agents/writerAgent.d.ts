@@ -1,5 +1,5 @@
-import { PosterState } from "../state/types";
-import { JouleKnowledgeBase } from "../tools/knowledgeBase";
+import { PosterState } from "../state/types.js";
+import { JouleKnowledgeBase } from "../tools/knowledgeBase.js";
 /**
  * Creates a content writer agent that generates professional posts about Joule Finance
  */

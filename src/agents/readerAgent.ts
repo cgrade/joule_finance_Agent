@@ -1,9 +1,9 @@
 import { HumanMessage, FunctionMessage } from "@langchain/core/messages";
-import { PosterState } from "../state/types";
-import { pruneMessages, logStateSize } from "../state/utils";
-import { getLLM } from "../utils/llm";
-import { JouleFinanceDataTool } from "../tools/jouleFinance";
-import { JouleMetricType, Timeframe } from "../types";
+import { PosterState } from "../state/types.js";
+import { pruneMessages, logStateSize } from "../state/utils.js";
+import { getLLM } from "../utils/llm.js";
+import { JouleFinanceDataTool } from "../tools/jouleFinance.js";
+import { JouleMetricType, Timeframe } from "../types/index.js";
 
 /**
  * Creates a data reader agent that fetches Joule Finance metrics

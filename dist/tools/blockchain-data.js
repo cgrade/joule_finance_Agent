@@ -1,24 +1,19 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.JouleBlockchainData = void 0;
-const ts_sdk_1 = require("@aptos-labs/ts-sdk");
-const config_1 = __importDefault(require("../config"));
+import { Aptos, AptosConfig } from '@aptos-labs/ts-sdk';
+import config from '../config.js';
 /**
  * Blockchain data fetcher for Joule Finance
  */
-class JouleBlockchainData {
+export class JouleBlockchainData {
+    client;
+    JOULE_CONFIG_ADDRESS = '0x2fe576faa841347a9b1b32c869685deb75a15e3f62dfe37cbd6d52cc403a16f6';
+    JOULE_POOL_MODULE = 'pool';
+    JOULE_LENDING_MODULE = 'lending';
     constructor() {
-        this.JOULE_CONFIG_ADDRESS = '0x2fe576faa841347a9b1b32c869685deb75a15e3f62dfe37cbd6d52cc403a16f6';
-        this.JOULE_POOL_MODULE = 'pool';
-        this.JOULE_LENDING_MODULE = 'lending';
         // Initialize Aptos client
-        const aptosConfig = new ts_sdk_1.AptosConfig({
-            network: config_1.default.aptos.network
+        const aptosConfig = new AptosConfig({
+            network: config.aptos.network
         });
-        this.client = new ts_sdk_1.Aptos(aptosConfig);
+        this.client = new Aptos(aptosConfig);
     }
     /**
      * Fetch TVL data from the blockchain
@@ -167,5 +162,3 @@ class JouleBlockchainData {
         }
     }
 }
-exports.JouleBlockchainData = JouleBlockchainData;
-//# sourceMappingURL=blockchain-data.js.map

@@ -1,4 +1,4 @@
-import { MarketData } from "../tools/jouleFinanceDataTool";
+import { MarketData } from "../tools/jouleFinanceDataTool.js";
 import { Canvas } from "canvas";
 
 // Chart types enum

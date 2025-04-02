@@ -7,14 +7,14 @@ import {
   createReaderAgent, 
   createWriterAgent,
   createPostingAgent
-} from "../agents";
+} from "../agents/index.js";
 import { 
   JouleFinanceDataTool,
   ChartVisualizationTool,
   XProfessionalPostTool,
   JouleKnowledgeBase
-} from "../tools";
-import config from "../config";
+} from "../tools/index.js";
+import config from "../config.js";
 
 // Define the market data interface
 interface MarketData {

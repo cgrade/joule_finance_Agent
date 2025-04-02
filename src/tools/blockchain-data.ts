@@ -1,5 +1,5 @@
 import { Aptos, Network, AptosConfig } from '@aptos-labs/ts-sdk';
-import config from '../config';
+import config from '../config.js';
 
 /**
  * Blockchain data fetcher for Joule Finance

@@ -1,31 +1,26 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.ChartVisualizationTool = void 0;
-const axios_1 = __importDefault(require("axios"));
-const tools_1 = require("@langchain/core/tools");
-const zod_1 = require("zod");
-const fs_1 = __importDefault(require("fs"));
-const path_1 = __importDefault(require("path"));
+import axios from 'axios';
+import { StructuredTool } from "@langchain/core/tools";
+import { z } from "zod";
+import fs from 'fs';
+import path from 'path';
 /**
  * Tool for generating chart visualizations
  */
-class ChartVisualizationTool extends tools_1.StructuredTool {
+export class ChartVisualizationTool extends StructuredTool {
+    name = "chart_visualization";
+    description = "Generates chart visualizations for financial metrics";
+    schema = z.object({
+        chart_type: z.enum(['line', 'bar', 'pie', 'doughnut']),
+        title: z.string(),
+        data: z.record(z.string(), z.number()).or(z.array(z.number())),
+        labels: z.array(z.string()).optional(),
+        colors: z.array(z.string()).optional(),
+        width: z.number().optional().default(600),
+        height: z.number().optional().default(400)
+    });
+    outputDir;
     constructor(outputDir = './generated') {
         super();
-        this.name = "chart_visualization";
-        this.description = "Generates chart visualizations for financial metrics";
-        this.schema = zod_1.z.object({
-            chart_type: zod_1.z.enum(['line', 'bar', 'pie', 'doughnut']),
-            title: zod_1.z.string(),
-            data: zod_1.z.record(zod_1.z.string(), zod_1.z.number()).or(zod_1.z.array(zod_1.z.number())),
-            labels: zod_1.z.array(zod_1.z.string()).optional(),
-            colors: zod_1.z.array(zod_1.z.string()).optional(),
-            width: zod_1.z.number().optional().default(600),
-            height: zod_1.z.number().optional().default(400)
-        });
         this.outputDir = outputDir;
         this.ensureOutputDirectory();
     }
@@ -90,15 +85,15 @@ class ChartVisualizationTool extends tools_1.StructuredTool {
                 }
                 // Save to file
                 const buffer = canvas.toBuffer('image/png');
-                const mockPath = path_1.default.join(process.cwd(), 'generated', `mock_chart_${Date.now()}.png`);
-                fs_1.default.writeFileSync(mockPath, buffer);
+                const mockPath = path.join(process.cwd(), 'generated', `mock_chart_${Date.now()}.png`);
+                fs.writeFileSync(mockPath, buffer);
                 return {
                     path: mockPath,
                     url: `https://example.com/mock_chart_${Date.now()}.png`
                 };
             }
             // Format the data for QuickChart.io API
-            let chartData;
+            let chartData = { datasets: [] };
             let datasets = [];
             if (Array.isArray(args.data)) {
                 // Single dataset with array data
@@ -121,6 +116,7 @@ class ChartVisualizationTool extends tools_1.StructuredTool {
                         label: args.title
                     }];
                 chartData = {
+                    ...chartData,
                     labels: labels
                 };
             }
@@ -149,7 +145,7 @@ class ChartVisualizationTool extends tools_1.StructuredTool {
                 }
             };
             // Use the QuickChart API to generate chart
-            const response = await axios_1.default.post('https://quickchart.io/chart/create', {
+            const response = await axios.post('https://quickchart.io/chart/create', {
                 chart: chartConfig,
                 width: args.width || 600,
                 height: args.height || 400,
@@ -158,16 +154,16 @@ class ChartVisualizationTool extends tools_1.StructuredTool {
             });
             if (response.data && response.data.url) {
                 // Download the chart image
-                const imageResponse = await axios_1.default.get(response.data.url, {
+                const imageResponse = await axios.get(response.data.url, {
                     responseType: 'arraybuffer'
                 });
                 // Save to local file
-                const outputDir = path_1.default.join(process.cwd(), 'generated');
-                if (!fs_1.default.existsSync(outputDir)) {
-                    fs_1.default.mkdirSync(outputDir, { recursive: true });
+                const outputDir = path.join(process.cwd(), 'generated');
+                if (!fs.existsSync(outputDir)) {
+                    fs.mkdirSync(outputDir, { recursive: true });
                 }
-                const filePath = path_1.default.join(outputDir, `chart_${Date.now()}.png`);
-                fs_1.default.writeFileSync(filePath, imageResponse.data);
+                const filePath = path.join(outputDir, `chart_${Date.now()}.png`);
+                fs.writeFileSync(filePath, imageResponse.data);
                 return {
                     path: filePath,
                     url: response.data.url
@@ -193,7 +189,7 @@ class ChartVisualizationTool extends tools_1.StructuredTool {
             this.ensureOutputDirectory();
             // Create a unique filename based on timestamp
             const filename = `mock_chart_${Date.now()}.png`;
-            const filepath = path_1.default.join(this.outputDir, filename);
+            const filepath = path.join(this.outputDir, filename);
             // Copy a sample chart file (or create a simple one)
             this.createSampleChartImage(filepath);
             console.log(`Generated visualization with real blockchain data at: ${filepath}`);
@@ -213,12 +209,12 @@ class ChartVisualizationTool extends tools_1.StructuredTool {
         // 1. Copy an existing sample image
         // 2. Create a simple colored square
         // Option 1: Copy from samples if available
-        const sampleDir = path_1.default.join(__dirname, '../../samples');
-        if (fs_1.default.existsSync(sampleDir)) {
-            const samples = fs_1.default.readdirSync(sampleDir).filter(f => f.endsWith('.png'));
+        const sampleDir = path.join(__dirname, '../../samples');
+        if (fs.existsSync(sampleDir)) {
+            const samples = fs.readdirSync(sampleDir).filter(f => f.endsWith('.png'));
             if (samples.length > 0) {
                 const randomSample = samples[Math.floor(Math.random() * samples.length)];
-                fs_1.default.copyFileSync(path_1.default.join(sampleDir, randomSample), filepath);
+                fs.copyFileSync(path.join(sampleDir, randomSample), filepath);
                 return;
             }
         }
@@ -227,17 +223,15 @@ class ChartVisualizationTool extends tools_1.StructuredTool {
         for (let i = 0; i < mockImageBuffer.length; i++) {
             mockImageBuffer[i] = Math.floor(Math.random() * 256);
         }
-        fs_1.default.writeFileSync(filepath, mockImageBuffer);
+        fs.writeFileSync(filepath, mockImageBuffer);
     }
     /**
      * Ensures the output directory exists
      */
     ensureOutputDirectory() {
-        if (!fs_1.default.existsSync(this.outputDir)) {
-            fs_1.default.mkdirSync(this.outputDir, { recursive: true });
+        if (!fs.existsSync(this.outputDir)) {
+            fs.mkdirSync(this.outputDir, { recursive: true });
         }
     }
 }
-exports.ChartVisualizationTool = ChartVisualizationTool;
-exports.default = ChartVisualizationTool;
-//# sourceMappingURL=visualization.js.map
+export default ChartVisualizationTool;

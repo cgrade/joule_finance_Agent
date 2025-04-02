@@ -1,22 +1,19 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.XProfessionalPostTool = void 0;
-const twitter_api_v2_1 = require("twitter-api-v2");
-const config_1 = __importDefault(require("../config"));
-const fs_1 = __importDefault(require("fs"));
+import { TwitterApi } from "twitter-api-v2";
+import config from "../config.js";
+import fs from "fs";
 /**
  * Tool for posting professional content to X/Twitter
  */
-class XProfessionalPostTool {
+export class XProfessionalPostTool {
+    twitterClient;
+    visualizationTool;
+    developmentMode;
     constructor(visualizationTool, devMode = process.env.NODE_ENV !== 'production') {
         this.visualizationTool = visualizationTool;
         this.developmentMode = devMode;
         // Initialize Twitter client
         try {
-            this.twitterClient = new twitter_api_v2_1.TwitterApi(config_1.default.twitter.apiKey + ':' + config_1.default.twitter.apiSecret);
+            this.twitterClient = new TwitterApi(config.twitter.apiKey + ':' + config.twitter.apiSecret);
             console.log('Twitter client initialized with API keys');
         }
         catch (error) {
@@ -76,12 +73,12 @@ class XProfessionalPostTool {
                 console.log(`postTweet called with media path: ${mediaPath}`);
                 console.log(`Attempting to use media at path: ${mediaPath}`);
                 // Check if file exists and has content
-                if (fs_1.default.existsSync(mediaPath)) {
-                    const stats = fs_1.default.statSync(mediaPath);
+                if (fs.existsSync(mediaPath)) {
+                    const stats = fs.statSync(mediaPath);
                     console.log(`Media file exists! Size: ${stats.size} bytes`);
                     if (stats.size > 0) {
                         // Upload media to Twitter
-                        const mediaBuffer = fs_1.default.readFileSync(mediaPath);
+                        const mediaBuffer = fs.readFileSync(mediaPath);
                         const mediaUpload = await this.twitterClient.v1.uploadMedia(mediaBuffer, {
                             mimeType: 'image/png'
                         });
@@ -106,6 +103,4 @@ class XProfessionalPostTool {
         }
     }
 }
-exports.XProfessionalPostTool = XProfessionalPostTool;
-exports.default = XProfessionalPostTool;
-//# sourceMappingURL=socialMedia.js.map
+export default XProfessionalPostTool;

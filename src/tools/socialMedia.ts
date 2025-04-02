@@ -1,9 +1,9 @@
-import { TwitterApi } from 'twitter-api-v2';
-import { ChartVisualizationTool } from './visualization';
-import config from '../config';
-import fs from 'fs';
-import { XPostResult } from '../types';
-
+import { TwitterApi } from "twitter-api-v2";
+import { ChartVisualizationTool } from "./visualization.js";
+import config from "../config.js";
+import fs from "fs";
+import { XPostResult } from "../types/index.js";
+  
 /**
  * Tool for posting professional content to X/Twitter
  */

@@ -8,11 +8,13 @@
 import * as dotenv from 'dotenv';
 import * as cron from 'node-cron';
 import chalk from "chalk";
-import { JouleFinanceDataTool } from './tools/jouleFinanceDataTool';
-import { TwitterClient } from './clients/twitterClient';
-import { generatePostWithData } from './agent/postGenerator';
-import config from './config';
-import { generateAssetDistributionChart, ChartType, generateChart } from './charts/chartGenerator';
+import { JouleFinanceDataTool } from './tools/jouleFinanceDataTool.js';
+import { TwitterClient } from './clients/twitterClient.js';
+import { generatePostWithData } from './agent/postGenerator.js';
+import config from './config.js';
+import { generateAssetDistributionChart, ChartType, generateChart } from './charts/chartGenerator.js';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 
 // Load environment variables
 dotenv.config();
@@ -72,14 +74,14 @@ function getRandomChartType(): ChartType {
 
 // Add this function to decide when to include a chart
 function shouldIncludeChart(postCount: number): boolean {
-  // Include a chart roughly every 4-5 posts (20-25% of the time)
-  return postCount % 4 === 0 || Math.random() < 0.05;
+  // Include a chart every 3 posts
+  return postCount % 3 === 0;
 }
 
 // Function to decide when to tag the Joule Finance account
 function shouldTagJouleFinance(): boolean {
-  // Tag approximately once every 7-10 posts (10-15% of the time)
-  return Math.random() < 0.12;
+  // Tag approximately once every 5-7 posts (15-20% of the time)
+  return Math.random() < 0.18;
 }
 
 // Add a counter to track the number of posts
@@ -120,24 +122,26 @@ async function postTweet(
       // Then create content based on chart type
       switch (chartType) {
         case ChartType.AssetDistribution:
-          chartContent = `${jouleTag}Joule Finance Asset Distribution:\n\n` +
-            `TVL: $${marketData.tvl.toLocaleString()}\n` +
-            `Top assets: ${Object.entries(marketData.assets)
+          chartContent = `${jouleTag}Joule Finance Asset Distribution Analysis:\n\n` +
+            `TVL: $${marketData.tvl.toLocaleString()} 📈\n` +
+            `Top assets leading the ecosystem: ${Object.entries(marketData.assets)
               .sort((a, b) => b[1].tvl - a[1].tvl)
               .slice(0, 3)
               .map(([symbol]) => symbol)
-              .join(', ')}\n` +
-            `Average APR: ${marketData.apr.toFixed(2)}%`;
+              .join(', ')} 💰\n` +
+            `Impressive average APR: ${marketData.apr.toFixed(2)}% 🔥\n\n` +
+            `#AptosDeFi #YieldFarming #JouleFinance`;
           break;
         case ChartType.AprsComparison:
           // For future implementation
-          chartContent = `${jouleTag}Joule Finance APR Analysis:\n\n` +
-            `Average lending APR: ${marketData.apr.toFixed(2)}%\n` +
-            `Top yielding assets: ${Object.entries(marketData.assets)
+          chartContent = `${jouleTag}Joule Finance APR Analysis - Outperforming the Market:\n\n` +
+            `Industry-leading average lending APR: ${marketData.apr.toFixed(2)}% 💸\n` +
+            `Top yielding assets crushing the competition: ${Object.entries(marketData.assets)
               .sort((a, b) => b[1].apr - a[1].apr)
               .slice(0, 3)
               .map(([symbol, data]) => `${symbol} (${data.apr.toFixed(2)}%)`)
-              .join(', ')}`;
+              .join(', ')} ⚡\n\n` +
+            `#PassiveIncome #DeFiYields #JouleFinance`;
           break;
       }
       
@@ -147,10 +151,8 @@ async function postTweet(
       // Generate regular text post
       let content = await generatePostWithData(null, prompt, marketData);
       
-      // Add Joule Finance tag if selected (at the beginning)
-      if (tagJouleFinance) {
-        content = `@JouleFinance ${content}`;
-      }
+      // Always add Joule Finance tag at the beginning
+      content = `${jouleTag}${content}`;
       
       console.log("\n=== GENERATED POST ===");
       console.log(content);
@@ -223,8 +225,10 @@ Example:
   }
 };
 
-// Run the main function
-if (require.main === module) {
+// Check if this module is being run directly
+const isMainModule = process.argv[1] === fileURLToPath(import.meta.url);
+
+if (isMainModule) {
   main().catch(error => {
     console.error('Unhandled error:', error);
     process.exit(1);

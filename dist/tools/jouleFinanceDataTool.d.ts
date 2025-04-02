@@ -8,6 +8,10 @@ export interface MarketData {
     lastUpdated: string;
     blockchainProof?: string;
 }
+export interface AssetData {
+    tvl: number;
+    apr: number;
+}
 export interface BlockchainDataTool {
     getData(): Promise<MarketData>;
 }
@@ -28,7 +32,8 @@ export declare class JouleFinanceDataTool implements BlockchainDataTool {
      */
     private fetchBlockchainData;
     /**
-     * Get reliable fallback data directly from hardcoded values
+     * Provides fallback data based on current Joule Finance metrics
+     * Updated with real data from the website
      */
     private getFallbackData;
     /**

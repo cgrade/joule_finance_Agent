@@ -1,5 +1,5 @@
-import { BaseMessage } from "langchain/schema";
-import { PosterState } from "./types";
+import { BaseMessage } from "@langchain/core/messages";
+import { PosterState } from "./types.js";
 
 /**
  * Prunes message history to prevent state bloat while preserving important context

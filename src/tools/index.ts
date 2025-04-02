@@ -7,13 +7,13 @@
 
 import { StructuredTool } from "@langchain/core/tools";
 import { z } from "zod";
-import { AgentRuntime } from "../agent/runtime";
+import { AgentRuntime } from "../agent/runtime.js";
 import { EntryFunctionArgumentTypes } from "@aptos-labs/ts-sdk";
-import { logger } from "../utils/logger";
-import JouleFinanceDataTool from './jouleFinance';
-import ChartVisualizationTool from './visualization';
-import XProfessionalPostTool from './socialMedia';
-import JouleKnowledgeBase from './knowledgeBase';
+import { logger } from "../utils/logger.js";
+import JouleFinanceDataTool from "./jouleFinance.js";
+import ChartVisualizationTool from "./visualization.js";
+import XProfessionalPostTool from "./socialMedia.js";
+import JouleKnowledgeBase from "./knowledgeBase.js";
 
 /**
  * Creates a token transfer tool for Aptos

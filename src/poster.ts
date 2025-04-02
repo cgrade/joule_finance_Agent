@@ -8,18 +8,18 @@
  */
 
 import { HumanMessage, BaseMessage } from "@langchain/core/messages";
-import { AgentRuntime } from "./agent/runtime";
-import { LocalSigner } from "./utils/signer";
+import { AgentRuntime } from "./agent/runtime.js";
+import { LocalSigner } from "./utils/signer.js";
 
-import config from "./config";
-import { buildPosterWorkflow } from "./workflow";
-import { PosterState } from "./state";
+import config from "./config.js";
+import { buildPosterWorkflow } from "./workflow/index.js";
+import { PosterState } from "./state/index.js";
 import {
   JouleFinanceDataTool,
   ChartVisualizationTool,
   XProfessionalPostTool,
   JouleKnowledgeBase
-} from "./tools";
+} from "./tools/index.js";
 
 /**
  * Initialize the Joule Finance poster system

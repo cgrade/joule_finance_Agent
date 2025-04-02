@@ -1,4 +1,4 @@
-import { MarketData } from "../tools/jouleFinanceDataTool";
+import { MarketData } from "../tools/jouleFinanceDataTool.js";
 /**
  * Generates a post using pre-defined analytical templates and market data
  * No LLM involvement to ensure reliability

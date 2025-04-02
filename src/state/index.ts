@@ -1,6 +1,6 @@
-import { PosterState } from './types';
-import StateAnnotation from './annotation';
-import { pruneMessages, logStateSize } from './utils';
+import { PosterState } from "./types.js";
+import StateAnnotation from "./annotation.js";
+import { pruneMessages, logStateSize } from "./utils.js";
 
 export {
   PosterState,

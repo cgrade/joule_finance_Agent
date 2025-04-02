@@ -1,24 +1,19 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.JouleKnowledgeBase = void 0;
-const fs_1 = __importDefault(require("fs"));
-const path_1 = __importDefault(require("path"));
-const text_splitter_1 = require("langchain/text_splitter");
-const openai_1 = require("@langchain/openai");
-const chroma_1 = require("@langchain/community/vectorstores/chroma");
+import fs from 'fs';
+import path from 'path';
+import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
+import { OpenAIEmbeddings } from "@langchain/openai";
+import { Chroma } from "@langchain/community/vectorstores/chroma";
 /**
  * Knowledge base for Joule Finance content
  */
-class JouleKnowledgeBase {
+export class JouleKnowledgeBase {
+    vectorStore = null;
+    knowledgePath;
     constructor() {
-        this.vectorStore = null;
-        this.knowledgePath = path_1.default.join(process.cwd(), 'knowledge');
+        this.knowledgePath = path.join(process.cwd(), 'knowledge');
         // Create knowledge directory if it doesn't exist
-        if (!fs_1.default.existsSync(this.knowledgePath)) {
-            fs_1.default.mkdirSync(this.knowledgePath, { recursive: true });
+        if (!fs.existsSync(this.knowledgePath)) {
+            fs.mkdirSync(this.knowledgePath, { recursive: true });
         }
     }
     /**
@@ -28,12 +23,12 @@ class JouleKnowledgeBase {
         try {
             console.log('Initializing Joule Finance knowledge base...');
             // Get all files in the knowledge directory
-            const files = fs_1.default.readdirSync(this.knowledgePath);
+            const files = fs.readdirSync(this.knowledgePath);
             // Load all documents
             const documents = [];
             for (const file of files) {
-                const filePath = path_1.default.join(this.knowledgePath, file);
-                const fileExt = path_1.default.extname(file).toLowerCase();
+                const filePath = path.join(this.knowledgePath, file);
+                const fileExt = path.extname(file).toLowerCase();
                 try {
                     if (fileExt === '.txt') {
                         // Use direct file loading instead of TextLoader
@@ -50,14 +45,14 @@ class JouleKnowledgeBase {
                 }
             }
             // Split documents into chunks
-            const textSplitter = new text_splitter_1.RecursiveCharacterTextSplitter({
+            const textSplitter = new RecursiveCharacterTextSplitter({
                 chunkSize: 1000,
                 chunkOverlap: 200
             });
             const splitDocs = await textSplitter.splitDocuments(documents);
             // Create embeddings and vector store
-            const embeddings = new openai_1.OpenAIEmbeddings();
-            this.vectorStore = await chroma_1.Chroma.fromDocuments(splitDocs, embeddings, { collectionName: "joule_finance_kb" });
+            const embeddings = new OpenAIEmbeddings();
+            this.vectorStore = await Chroma.fromDocuments(splitDocs, embeddings, { collectionName: "joule_finance_kb" });
             console.log(`Knowledge base initialized with ${splitDocs.length} chunks from ${documents.length} documents`);
         }
         catch (error) {
@@ -86,7 +81,7 @@ class JouleKnowledgeBase {
     // Add a function to create document objects directly
     async loadTextFile(filePath) {
         try {
-            const content = fs_1.default.readFileSync(filePath, 'utf8');
+            const content = fs.readFileSync(filePath, 'utf8');
             return [{
                     pageContent: content,
                     metadata: { source: filePath }
@@ -98,5 +93,3 @@ class JouleKnowledgeBase {
         }
     }
 }
-exports.JouleKnowledgeBase = JouleKnowledgeBase;
-//# sourceMappingURL=knowledge-base.js.map

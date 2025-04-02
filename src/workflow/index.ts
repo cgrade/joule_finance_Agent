@@ -1,4 +1,4 @@
-import buildPosterWorkflow from './graph';
+import buildPosterWorkflow from "./graph.js";
 
 export {
   buildPosterWorkflow

@@ -1,7 +1,6 @@
 // Direct Aptos blockchain client
-import axios from "axios";
 import chalk from "chalk";
-import config from "../config";
+import config from "../config.js";
 
 export class AptosClient {
   private readonly endpoint: string;
@@ -16,6 +15,8 @@ export class AptosClient {
   async callViewFunction(address: string, module: string, func: string, typeArgs: string[] = [], args: any[] = []): Promise<any> {
     try {
       console.log(chalk.yellow(`Calling ${module}::${func} on ${address}...`));
+      
+      const { default: axios } = await import('axios');
       
       const viewFunctionUrl = `${this.endpoint}/view`;
       const viewFunctionPayload = {
@@ -41,6 +42,8 @@ export class AptosClient {
   async getResources(address: string): Promise<any[]> {
     try {
       console.log(chalk.yellow(`Fetching resources for ${address}...`));
+      
+      const { default: axios } = await import('axios');
       
       const url = `${this.endpoint}/accounts/${address}/resources`;
       const response = await axios.get(url);

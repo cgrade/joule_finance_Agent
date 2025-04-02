@@ -1,67 +1,40 @@
-"use strict";
 /**
  * Joule Finance Twitter Posting Agent
  *
  * This script generates and posts informative content about Joule Finance,
  * a lending protocol on the Aptos blockchain.
  */
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || (function () {
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
-    };
-    return function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-})();
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const dotenv = __importStar(require("dotenv"));
-const chalk_1 = __importDefault(require("chalk"));
-const jouleFinanceDataTool_1 = require("./tools/jouleFinanceDataTool");
-const twitterClient_1 = require("./clients/twitterClient");
-const postGenerator_1 = require("./agent/postGenerator");
-const config_1 = __importDefault(require("./config"));
-const chartGenerator_1 = require("./charts/chartGenerator");
+import * as dotenv from 'dotenv';
+import chalk from "chalk";
+import { JouleFinanceDataTool } from './tools/jouleFinanceDataTool.js';
+import { TwitterClient } from './clients/twitterClient.js';
+import { generatePostWithData } from './agent/postGenerator.js';
+import config from './config.js';
+import { ChartType, generateChart } from './charts/chartGenerator.js';
+import { fileURLToPath } from 'url';
 // Load environment variables
 dotenv.config();
 // Initialize tools
-const jouleFinanceTool = new jouleFinanceDataTool_1.JouleFinanceDataTool();
-const twitterClient = new twitterClient_1.TwitterClient();
+const jouleFinanceTool = new JouleFinanceDataTool();
+const twitterClient = new TwitterClient();
+// Add or modify any environment checks
+const isProduction = process.env.NODE_ENV === 'production';
+if (isProduction) {
+    console.log(chalk.green('🚀 Starting Joule Finance Agent in PRODUCTION mode'));
+    console.log(chalk.green('🐦 Tweets will be actually posted to Twitter'));
+}
+else {
+    console.log(chalk.yellow('⚠️ Running in DEVELOPMENT mode'));
+    console.log(chalk.yellow('🐦 Tweets will be logged but not posted'));
+}
 // Print banner
-console.log(chalk_1.default.cyan('\n🔄 JOULE FINANCE AGENT 🔄'));
-console.log(chalk_1.default.cyan('==============================\n'));
-console.log(chalk_1.default.cyan('➤ Initializing Joule Finance posting agent...'));
+console.log(chalk.cyan('\n🔄 JOULE FINANCE AGENT 🔄'));
+console.log(chalk.cyan('==============================\n'));
+console.log(chalk.cyan('➤ Initializing Joule Finance posting agent...'));
 // Development mode warning for Twitter API
-if (config_1.default.DEVELOPMENT_MODE) {
-    console.log(chalk_1.default.yellow('WARNING: Missing Twitter API credentials'));
-    console.log(chalk_1.default.yellow('The agent will run in development mode (tweets will be logged but not posted)'));
+if (config.DEVELOPMENT_MODE) {
+    console.log(chalk.yellow('WARNING: Missing Twitter API credentials'));
+    console.log(chalk.yellow('The agent will run in development mode (tweets will be logged but not posted)'));
 }
 // Sample post topics
 const POST_TOPICS = [
@@ -75,74 +48,106 @@ const POST_TOPICS = [
     "Joule Finance lending and borrowing markets",
     "Joule Finance integration with other Aptos protocols"
 ];
-// Function to create a post
-async function createPost(topic, includeChart = false) {
+/**
+ * Select a random chart type
+ */
+function getRandomChartType() {
+    const types = [
+        ChartType.AssetDistribution,
+        ChartType.AprsComparison
+        // ChartType.TvlTrend,  // Uncomment when implemented
+        // ChartType.RiskAdjustedReturn
+    ];
+    return types[Math.floor(Math.random() * types.length)];
+}
+// Add this function to decide when to include a chart
+function shouldIncludeChart(postCount) {
+    // Include a chart every 3 posts
+    return postCount % 3 === 0;
+}
+// Function to decide when to tag the Joule Finance account
+function shouldTagJouleFinance() {
+    // Tag approximately once every 5-7 posts (15-20% of the time)
+    return Math.random() < 0.18;
+}
+// Add a counter to track the number of posts
+let postCount = 0;
+// Modify the postTweet function to occasionally include charts and tags
+async function postTweet(prompt = "Joule Finance latest analytics") {
+    console.log(`Processing request: ${prompt}`);
     try {
-        console.log(`Processing request: ${topic}`);
-        // Get the market data
+        // Get market data
         const marketData = await jouleFinanceTool.getData();
-        console.log(`Retrieved market data: success`);
-        // Generate the post using our template-based function
-        const post = await (0, postGenerator_1.generatePostWithData)(null, // OpenAI client no longer needed
-        topic, marketData);
-        console.log("\n=== GENERATED POST ===");
-        console.log(post);
-        console.log("======================\n");
-        // Generate chart if requested
-        let chartPath = null;
+        console.log(`Retrieved market data: ${marketData ? 'success' : 'failed'}`);
+        // Increment post count
+        postCount++;
+        // Decide whether to include a chart
+        const includeChart = shouldIncludeChart(postCount);
+        // Decide whether to tag Joule Finance
+        const tagJouleFinance = shouldTagJouleFinance();
+        const jouleTag = tagJouleFinance ? "@JouleFinance " : "";
         if (includeChart) {
-            try {
-                chartPath = await (0, chartGenerator_1.generateAssetDistributionChart)(marketData);
-                console.log(`Generated chart: ${chartPath}`);
+            console.log('Generating chart for this post...');
+            // Select chart type
+            const chartType = getRandomChartType();
+            let chartPath = '';
+            let chartContent = '';
+            // Generate appropriate chart based on type
+            chartPath = await generateChart(chartType, marketData);
+            // Then create content based on chart type
+            switch (chartType) {
+                case ChartType.AssetDistribution:
+                    chartContent = `${jouleTag}Joule Finance Asset Distribution Analysis:\n\n` +
+                        `TVL: $${marketData.tvl.toLocaleString()} 📈\n` +
+                        `Top assets leading the ecosystem: ${Object.entries(marketData.assets)
+                            .sort((a, b) => b[1].tvl - a[1].tvl)
+                            .slice(0, 3)
+                            .map(([symbol]) => symbol)
+                            .join(', ')} 💰\n` +
+                        `Impressive average APR: ${marketData.apr.toFixed(2)}% 🔥\n\n` +
+                        `#AptosDeFi #YieldFarming #JouleFinance`;
+                    break;
+                case ChartType.AprsComparison:
+                    // For future implementation
+                    chartContent = `${jouleTag}Joule Finance APR Analysis - Outperforming the Market:\n\n` +
+                        `Industry-leading average lending APR: ${marketData.apr.toFixed(2)}% 💸\n` +
+                        `Top yielding assets crushing the competition: ${Object.entries(marketData.assets)
+                            .sort((a, b) => b[1].apr - a[1].apr)
+                            .slice(0, 3)
+                            .map(([symbol, data]) => `${symbol} (${data.apr.toFixed(2)}%)`)
+                            .join(', ')} ⚡\n\n` +
+                        `#PassiveIncome #DeFiYields #JouleFinance`;
+                    break;
             }
-            catch (error) {
-                console.error("Error generating chart:", error);
-            }
+            // Post with the chart
+            await twitterClient.tweetWithMedia(chartContent, chartPath);
         }
-        // Post to Twitter if not in development mode
-        if (!config_1.default.DEVELOPMENT_MODE) {
-            if (chartPath) {
-                await twitterClient.tweetWithMedia(post, chartPath);
-            }
-            else {
-                await twitterClient.tweet(post);
-            }
-            console.log("Tweet posted successfully!");
+        else {
+            // Generate regular text post
+            let content = await generatePostWithData(null, prompt, marketData);
+            // Always add Joule Finance tag at the beginning
+            content = `${jouleTag}${content}`;
+            console.log("\n=== GENERATED POST ===");
+            console.log(content);
+            console.log("======================\n");
+            // Post the text-only tweet
+            await twitterClient.tweet(content);
         }
-        return { post, chartPath };
+        console.log("Post completed.");
     }
     catch (error) {
-        console.error("Error creating post:", error);
-        return { post: null, chartPath: null };
+        console.error("Error posting tweet:", error);
     }
 }
-// Override post generation to ensure no problematic content
-const originalGeneratePostWithData = postGenerator_1.generatePostWithData;
-// Safe way to handle spread operator issue by defining proper types
-global.generatePostWithData = async function (client, prompt, marketData) {
-    // Get the post from our template system
-    const post = await originalGeneratePostWithData(client, prompt, marketData);
-    // Check if it contains problematic phrases
-    const problematicPhrases = [
-        "despite", "unable", "can't", "cannot", "issue", "problem",
-        "real-time", "data access", "temporary", "access"
-    ];
-    // If problematic phrases detected, use a guaranteed safe template
-    if (problematicPhrases.some(phrase => post.toLowerCase().includes(phrase))) {
-        console.log(chalk_1.default.red("⚠️ Detected problematic phrases in post. Using safe template instead."));
-        return "Joule Finance continues to grow on Aptos with $9,949,126.35 TVL and 3.87% average APR. USDC (4.2%), USDT (4.0%), and WETH (2.8%) lead with competitive yields. #DeFi #Aptos";
-    }
-    return post;
-};
 // Handle the scheduled posting
 async function runScheduledPost() {
     try {
         // Choose a random topic from our list
         const randomIndex = Math.floor(Math.random() * POST_TOPICS.length);
         const topic = POST_TOPICS[randomIndex];
-        console.log(chalk_1.default.cyan(`[${new Date().toISOString()}] Scheduled post triggered: "${topic}"`));
-        await createPost(topic);
-        console.log('Post completed. Next post in', config_1.default.POST_FREQUENCY_SECONDS, 'seconds');
+        console.log(chalk.cyan(`[${new Date().toISOString()}] Scheduled post triggered: "${topic}"`));
+        await postTweet(topic);
+        console.log('Post completed. Next post in', config.POST_FREQUENCY_SECONDS, 'seconds');
     }
     catch (error) {
         console.error('Error in scheduled post:', error);
@@ -155,8 +160,8 @@ const main = async () => {
         const args = process.argv.slice(2);
         if (args.includes('--frequency') || args.includes('-f')) {
             // Start scheduled posting with configured frequency
-            const frequencySeconds = config_1.default.POST_FREQUENCY_SECONDS;
-            console.log(chalk_1.default.blue(`ℹ️ Starting scheduled posting every ${frequencySeconds} seconds`));
+            const frequencySeconds = config.POST_FREQUENCY_SECONDS;
+            console.log(chalk.blue(`ℹ️ Starting scheduled posting every ${frequencySeconds} seconds`));
             // Run immediately
             await runScheduledPost();
             // Then set up interval
@@ -179,7 +184,7 @@ Example:
             // Run once with a random topic
             const randomIndex = Math.floor(Math.random() * POST_TOPICS.length);
             const topic = POST_TOPICS[randomIndex];
-            await createPost(topic);
+            await postTweet(topic);
             process.exit(0);
         }
     }
@@ -188,11 +193,11 @@ Example:
         process.exit(1);
     }
 };
-// Run the main function
-if (require.main === module) {
+// Check if this module is being run directly
+const isMainModule = process.argv[1] === fileURLToPath(import.meta.url);
+if (isMainModule) {
     main().catch(error => {
         console.error('Unhandled error:', error);
         process.exit(1);
     });
 }
-//# sourceMappingURL=index.js.map

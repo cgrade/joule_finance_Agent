@@ -1,4 +1,4 @@
-import { AgentRuntime } from "../agent/runtime";
+import { AgentRuntime } from "../agent/runtime.js";
 interface AssetData {
     price: number;
     tvl: number;

@@ -50,22 +50,26 @@ class ConversationService {
   /**
    * Save a message to a conversation
    */
-  async saveMessage(conversationId, role, content, tokenCount = null) {
+  async saveMessage(conversationId, role, content, tokenCount = 0) {
     try {
-      // Create the message
+      // Validate content is not null
+      if (content === null || content === undefined) {
+        content = "Error: No response generated";
+      }
+      
       const message = await Message.create({
         conversationId,
         role,
         content,
         tokenCount
       });
-
-      // Update conversation's last message time
+      
+      // Update conversation's lastMessageAt
       await Conversation.update(
         { lastMessageAt: new Date() },
-        { where: { id: conversationId } }
+        { where: { id: conversationId }}
       );
-
+      
       return message;
     } catch (error) {
       console.error('Error in saveMessage:', error);

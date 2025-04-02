@@ -1,4 +1,4 @@
-import { JouleFinanceDataTool, XProfessionalPostTool, JouleKnowledgeBase } from "../tools";
+import { JouleFinanceDataTool, XProfessionalPostTool, JouleKnowledgeBase } from "../tools/index.js";
 export declare const buildPosterWorkflow: (jouleFinanceTool: JouleFinanceDataTool, xPostTool: XProfessionalPostTool, knowledgeBase?: JouleKnowledgeBase) => {
     invoke: (stateObject: any) => Promise<{
         poster_output: string;

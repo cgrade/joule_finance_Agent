@@ -1,20 +1,17 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.createWriterAgent = void 0;
-const schema_1 = require("langchain/schema");
-const utils_1 = require("../state/utils");
-const llm_1 = require("../utils/llm");
+import { HumanMessage, FunctionMessage } from "@langchain/core/messages";
+import { pruneMessages, logStateSize } from "../state/utils.js";
+import { getLLM } from "../utils/llm.js";
 /**
  * Creates a content writer agent that generates professional posts about Joule Finance
  */
-const createWriterAgent = (knowledgeBase) => {
+export const createWriterAgent = (knowledgeBase) => {
     return async (state) => {
         // Move this declaration before the try/catch
-        const messages = (0, utils_1.pruneMessages)(state.messages || [], 20);
+        const messages = pruneMessages(state.messages || [], 20);
         // Log state size for debugging
-        (0, utils_1.logStateSize)({ messages, lastPostTime: state.lastPostTime, metrics: state.metrics }, 'writer_agent:start');
+        logStateSize({ messages, lastPostTime: state.lastPostTime, metrics: state.metrics }, 'writer_agent:start');
         try {
-            const llm = (0, llm_1.getLLM)();
+            const llm = getLLM();
             // Get the most recent reader agent response
             const readerMessage = messages.findLast(msg => msg.name === 'reader_agent');
             if (!readerMessage) {
@@ -40,12 +37,12 @@ const createWriterAgent = (knowledgeBase) => {
 
       Format your response as a simple text tweet without any additional explanation.`;
             // Generate the content using the LLM
-            const response = await llm.invoke([new schema_1.HumanMessage(writerPrompt)]);
+            const response = await llm.invoke([new HumanMessage(writerPrompt)]);
             const generatedContent = response.content;
             console.log('Generated tweet content:', generatedContent);
             // Create a writer message with name property
             console.log('Creating writer message with name property...');
-            const writerMessage = new schema_1.FunctionMessage({
+            const writerMessage = new FunctionMessage({
                 content: generatedContent,
                 name: "writer_agent"
             });
@@ -63,7 +60,7 @@ const createWriterAgent = (knowledgeBase) => {
             console.error('Error in writer agent:', error);
             // Proper error handling
             return {
-                messages: [...messages, new schema_1.FunctionMessage({
+                messages: [...messages, new FunctionMessage({
                         content: JSON.stringify({ error: error.message }),
                         name: "writer_agent_error"
                     })],
@@ -73,6 +70,4 @@ const createWriterAgent = (knowledgeBase) => {
         }
     };
 };
-exports.createWriterAgent = createWriterAgent;
-exports.default = exports.createWriterAgent;
-//# sourceMappingURL=writerAgent.js.map
+export default createWriterAgent;

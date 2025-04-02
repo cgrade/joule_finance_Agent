@@ -1,17 +1,17 @@
-"use strict";
 /**
  * Agent Runtime for Move Agent Kit
  *
  * This module provides the core runtime for the Move Agent Kit,
  * encapsulating signer, Aptos client, and agent operations.
  */
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.AgentRuntime = void 0;
-const logger_1 = require("../utils/logger");
+import { logger } from '../utils/logger.js';
 /**
  * AgentRuntime class for Move Agent Kit
  */
-class AgentRuntime {
+export class AgentRuntime {
+    signer;
+    aptos;
+    options;
     /**
      * Creates a new AgentRuntime instance
      *
@@ -51,7 +51,7 @@ class AgentRuntime {
             return Number(balance) / 1e8;
         }
         catch (error) {
-            logger_1.logger.error('Error getting balance:', error);
+            logger.error('Error getting balance:', error);
             throw new Error(`Failed to get balance: ${error.message}`);
         }
     }
@@ -177,5 +177,3 @@ class AgentRuntime {
         return await this.aptos.waitForTransaction({ transactionHash: txHash });
     }
 }
-exports.AgentRuntime = AgentRuntime;
-//# sourceMappingURL=runtime.js.map

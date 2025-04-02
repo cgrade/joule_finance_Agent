@@ -1,6 +1,6 @@
-import { MarketData } from "../tools/jouleFinanceDataTool";
-import { ChartFactory } from "./ChartFactory";
-import { ChartType } from "./types";
+import { MarketData } from "../tools/jouleFinanceDataTool.js";
+import { ChartFactory } from "./ChartFactory.js";
+import { ChartType } from "./types.js";
 
 /**
  * Generate an asset distribution chart based on the provided market data

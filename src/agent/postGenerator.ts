@@ -1,51 +1,56 @@
-import { MarketData } from "../tools/jouleFinanceDataTool";
+import { MarketData } from "../tools/jouleFinanceDataTool.js";
 import * as fs from 'fs';
 import * as path from 'path';
+import { fileURLToPath } from 'url';
+
+// Add this near the beginning of the file
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Enhanced professional templates for an on-chain data analyst
 const POST_TEMPLATES = [
   // TVL focused analytical templates
-  "Joule Finance analysis: TVL now at {TVL} with consistent growth in Q2. Average yields of {APR} across markets, with {TOP_ASSETS} leading in capital efficiency. Protocol fundamentals remain strong.",
-  "TVL update for Joule Finance: {TVL} in total locked value, showing +{TVL_CHANGE}% WoW growth. Asset distribution weighted toward {TOP_ASSETS} with {APR} blended yield across offerings.",
-  "Capital allocation analysis: Joule Finance's {TVL} TVL shows increasing institutional interest. {TOP_ASSETS} compose {TOP_PERCENTAGE}% of total value, with {APR} weighted average yield maintaining competitive position.",
+  "🚀 Joule Finance continues to THRIVE! TVL impressively reaching {TVL} with exceptional growth in Q2. Incredible yields of {APR} across markets, with {TOP_ASSETS} leading in capital efficiency. Protocol fundamentals have never been stronger! #DeFi #Aptos",
+  "🔥 BREAKING: Joule Finance TVL update: {TVL} in total locked value, showing an impressive +{TVL_CHANGE}% WoW growth! Asset distribution weighted toward {TOP_ASSETS} with {APR} blended yield across offerings. Clear leader in the Aptos ecosystem! #YieldFarming",
+  "📈 Bullish capital allocation: Joule Finance's {TVL} TVL demonstrates surging institutional interest. {TOP_ASSETS} compose {TOP_PERCENTAGE}% of total value, with outstanding {APR} weighted average yield dominating the competition! #DeFiRevolution #Aptos",
   
   // User-focused analytical templates
-  "User adoption metrics: Joule Finance now serving {USERS} active wallets managing {TVL} in TVL. Capital efficiency ratio at 0.76, with yields reaching {MAX_APR} on select assets. Retention rate remains above sector average.",
-  "User growth trajectory: Joule Finance reaching {USERS} verified users with {TVL_PER_USER} average TVL per user. New user acquisition cost declining while retention metrics show improvement. {TOP_ASSETS} seeing highest engagement.",
-  "Wallet distribution analysis: {USERS} active addresses interacting with Joule Finance, with average deposit size of {TVL_PER_USER}. Whales account for 32% of {TVL} total TVL, with retail adoption accelerating.",
+  "🏆 Joule Finance adoption EXPLODING: Now serving {USERS} active wallets managing {TVL} in TVL! Exceptional capital efficiency ratio at 0.76, with yields reaching {MAX_APR} on select assets. User retention rate crushing sector averages! #DeFiGems",
+  "📱 User growth skyrocketing: Joule Finance reaching {USERS} verified users with {TVL_PER_USER} average TVL per user. Acquisition costs plummeting while retention metrics show impressive gains. {TOP_ASSETS} seeing highest engagement! #AptosDeFi #Bullish",
+  "👥 Amazing wallet distribution: {USERS} active addresses interacting with Joule Finance, with average deposit size of {TVL_PER_USER}. Whales account for 32% of {TVL} total TVL, with retail adoption accelerating at unprecedented rates! #CommunityGrowth",
   
   // Volume focused analytical templates
-  "Trading volume analysis for Joule Finance: {VOLUME} processed in last 24h with {TVL} total value locked. Liquidity depth improving across {TOP_ASSETS}. On-chain indicators suggest healthy capital utilization.",
-  "Volume metrics: Joule Finance recording {VOLUME} in 24h transaction volume, representing {VOLUME_TO_TVL}% of {TVL} TVL. Trading activity concentrated in {TOP_ASSETS}, suggesting increasing market depth.",
-  "Liquidity flow analysis: {VOLUME} in transaction volume across Joule Finance markets in past 24h. Capital velocity increasing with utilization rate of {UTILIZATION}%. Particularly strong activity in {TOP_ASSETS} pairs.",
+  "💹 Trading volume EXPLODING on Joule Finance: {VOLUME} processed in last 24h with {TVL} total value locked. Liquidity depth improving dramatically across {TOP_ASSETS}. On-chain indicators suggest exceptional capital utilization! #Trading #Aptos",
+  "📊 Volume hitting new highs: Joule Finance recording {VOLUME} in 24h transaction volume, representing {VOLUME_TO_TVL}% of {TVL} TVL. Trading activity concentrated in {TOP_ASSETS}, demonstrating incredible market depth & confidence! #TradingVolume",
+  "💰 Liquidity flow analysis: {VOLUME} in transaction volume across Joule Finance markets in past 24h. Capital velocity surging with utilization rate of {UTILIZATION}%. Particularly strong activity in {TOP_ASSETS} pairs making Joule the go-to platform! #AptosEcosystem",
   
   // APR focused analytical templates
-  "Yield analysis: Joule Finance currently offering {APR} average APR with sustainable tokenomics model. {TVL} in managed assets across diversified pools. Top performing markets: {TOP_ASSETS}. Risk-adjusted returns outperforming ecosystem average.",
-  "Interest rate model assessment: Joule Finance maintaining {APR} mean APR across {TVL} in deposits. Rate stability remains high with volatility index at 0.14, significantly below ecosystem average. {TOP_ASSETS} offering premium yields.",
-  "Yield curve analysis: Joule Finance's average yield of {APR} positions protocol favorably against competitors. Term structure showing positive slope with {TOP_ASSETS} generating highest returns on {TVL} capital base.",
+  "💸 Exceptional yield opportunities: Joule Finance currently offering outstanding {APR} average APR with sustainable tokenomics model. {TVL} in managed assets across diversified pools. Top performers: {TOP_ASSETS}. Risk-adjusted returns crushing ecosystem average! #YieldFarming",
+  "📣 Interest rate model outperforming peers: Joule Finance maintaining industry-leading {APR} mean APR across {TVL} in deposits. Rate stability remains unmatched with volatility index at 0.14, significantly below ecosystem average. {TOP_ASSETS} offering premium yields! #Yields",
+  "📈 Yield curve dominance: Joule Finance's average yield of {APR} positions protocol as the undisputed leader against competitors. Term structure showing positive slope with {TOP_ASSETS} generating highest returns on {TVL} capital base! #PassiveIncome #AptosDeFi",
   
   // Integration focused analytical templates
-  "Joule Finance ecosystem integration report: Protocol now maintains {TVL} TVL with {USERS} users across multiple markets. Deep liquidity with competitive rates enables cross-protocol capital efficiency. Utilization metrics show healthy reserve ratios.",
-  "Cross-protocol interaction data: Joule Finance's {TVL} liquidity actively utilized across Aptos DeFi ecosystem. Integration depth increasing with {INTEGRATIONS_COUNT} protocol connections. Capital efficiency multiplier measured at 1.32x.",
-  "Ecosystem positioning analysis: Joule Finance's {TVL} in TVL represents {ECOSYSTEM_SHARE}% of Aptos TVL. Strategic integrations with {INTEGRATIONS_COUNT} protocols driving compounding yield opportunities averaging {APR}.",
+  "🔄 Joule Finance ecosystem integration taking over: Protocol now maintains {TVL} TVL with {USERS} users across multiple markets. Unparalleled liquidity with competitive rates enables cross-protocol capital efficiency. Utilization metrics show exceptional reserve ratios! #DeFiIntegration",
+  "🌐 Cross-protocol dominance: Joule Finance's {TVL} liquidity actively utilized across entire Aptos DeFi ecosystem. Integration depth increasing with {INTEGRATIONS_COUNT} protocol connections. Capital efficiency multiplier measured at an impressive 1.32x! #Ecosystem",
+  "🧩 Ecosystem positioning strengthening: Joule Finance's {TVL} in TVL represents a growing {ECOSYSTEM_SHARE}% of Aptos TVL. Strategic integrations with {INTEGRATIONS_COUNT} protocols driving innovative compounding yield opportunities averaging {APR}! #AptosDeFi",
   
   // Feature focused analytical templates
-  "Technical analysis of Joule Finance: {TVL} in managed assets with {USERS} active users and {APR} mean yield. Protocol security rating remains high with multi-layer risk management system. Capital efficiency ratio: 0.82.",
-  "Protocol health assessment: Joule Finance's {TVL} TVL supported by robust technical fundamentals. Security audit coverage at 100% with formal verification of core contracts. Risk parameters optimized for {APR} sustainable yield.",
-  "Feature utilization metrics: Analysis of Joule Finance's {USERS} users shows 73% engagement with advanced protocol features. Multi-asset collateralization seeing highest adoption, driving efficient use of {TVL} locked capital.",
+  "⚙️ Technical excellence: Joule Finance managing {TVL} in assets with {USERS} active users and {APR} mean yield. Protocol security rating remains unmatched with multi-layer risk management system. Capital efficiency ratio: 0.82 - best in class! #TechExcellence",
+  "🛡️ Protocol health assessment: Joule Finance's robust {TVL} TVL supported by industry-leading technical fundamentals. Security audit coverage at 100% with formal verification of core contracts. Risk parameters optimized for sustainable {APR} yield - simply unmatched! #Security",
+  "🔧 Feature utilization breaking records: Analysis of Joule Finance's {USERS} users shows 73% engagement with advanced protocol features. Multi-asset collateralization seeing highest adoption, driving efficient use of {TVL} locked capital! #UserExperience",
   
   // Specific feature analytical templates
-  "Multi-asset lending market analysis: Joule Finance's core markets ({TOP_ASSETS}) show strong fundamentals with {TVL} TVL and mean yields of {APR}. Collateralization ratio remains healthy at 142%. Capital efficiency trending upward.",
-  "Collateral efficiency report: Joule Finance's multi-asset model achieving 82% capital efficiency across {TVL} in deposits. Weighted average LTV of 65% balances capital efficiency with protocol safety. {TOP_ASSETS} most actively used as collateral.",
-  "Lending market dynamics: Joule Finance's {TVL} lending pools showing balanced utilization metrics. Supply-side concentration decreasing with Gini coefficient of 0.64. Blended interest rate of {APR} maintains competitive position.",
+  "💼 Multi-asset lending markets THRIVING: Joule Finance's core markets ({TOP_ASSETS}) show exceptional fundamentals with {TVL} TVL and mean yields of {APR}. Collateralization ratio remains healthy at 142%. Capital efficiency trending strongly upward! #LendingMarkets",
+  "🏦 Collateral efficiency outperforming competitors: Joule Finance's multi-asset model achieving 82% capital efficiency across {TVL} in deposits. Weighted average LTV of 65% perfectly balances capital efficiency with protocol safety. {TOP_ASSETS} most actively used as collateral! #Efficiency",
+  "📈 Lending market dynamics excelling: Joule Finance's {TVL} lending pools showing optimized utilization metrics. Supply-side concentration decreasing with Gini coefficient of 0.64. Blended interest rate of {APR} maintains dominant competitive position! #Lending",
   
-  "Yield strategy performance data: Joule Finance's automated strategies generating up to {MAX_APR} with {TVL} in managed assets. Risk-adjusted returns outperforming sector benchmarks. Strategy diversification offering optimal risk-reward profiles.",
-  "Automated yield optimization assessment: Strategies managing {TVL} in assets with performance metrics showing {APR} blended return. Sharpe ratio of 1.8 indicates superior risk-adjusted performance. {TOP_ASSETS} strategies delivering highest alpha.",
-  "Strategy performance metrics: Joule Finance's yield optimizers delivering {APR} time-weighted returns on {TVL} managed capital. Drawdown parameters remain within defined thresholds with maximum recorded at 3.2% in volatile conditions.",
+  "📊 Yield strategy performance crushing benchmarks: Joule Finance's automated strategies generating up to {MAX_APR} with {TVL} in managed assets. Risk-adjusted returns demolishing sector benchmarks. Strategy diversification offering optimal risk-reward profiles! #YieldStrategies",
+  "⚡ Automated yield optimization leading the industry: Strategies managing {TVL} in assets with performance metrics showing {APR} blended return. Sharpe ratio of 1.8 indicates superior risk-adjusted performance. {TOP_ASSETS} strategies delivering highest alpha! #PassiveIncome",
+  "🔥 Strategy performance setting new standards: Joule Finance's yield optimizers delivering {APR} time-weighted returns on {TVL} managed capital. Drawdown parameters remain well within defined thresholds with maximum recorded at just 3.2% in volatile conditions! #RiskManagement",
   
-  "Cross-chain capital flows: Joule Finance managing {TVL} across diversified assets including {TOP_ASSETS}. Yields of up to {MAX_APR} available on Aptos, positioning protocol as a significant cross-chain liquidity provider. Bridged asset reserves above target.",
-  "Bridged asset analysis: {TVL} in cross-chain assets deployed through Joule Finance. Inflow velocity increasing at {INFLOW_RATE}% monthly with {TOP_ASSETS} seeing highest demand. Bridge utilization maintaining 94% efficiency ratio.",
-  "Inter-blockchain liquidity report: Joule Finance facilitating efficient cross-chain capital deployment of {TVL} total value. Asset composition favoring {TOP_ASSETS} with average deployed yield of {APR}. Slippage metrics showing continued improvement."
+  "🌉 Cross-chain capital flows accelerating: Joule Finance managing {TVL} across diversified assets including {TOP_ASSETS}. Yields of up to {MAX_APR} available on Aptos, positioning protocol as THE significant cross-chain liquidity provider. Bridged asset reserves exceed targets! #CrossChain",
+  "🔄 Bridged asset growth exploding: {TVL} in cross-chain assets deployed through Joule Finance. Inflow velocity increasing at {INFLOW_RATE}% monthly with {TOP_ASSETS} seeing highest demand. Bridge utilization maintaining an exceptional 94% efficiency ratio! #Interoperability",
+  "🌐 Inter-blockchain liquidity leadership: Joule Finance facilitating efficient cross-chain capital deployment of {TVL} total value. Asset composition favoring {TOP_ASSETS} with average deployed yield of {APR}. Slippage metrics showing continued improvement - best in class! #Blockchain"
 ];
 
 // Store the last 10 used templates to avoid repetition

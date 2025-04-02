@@ -1,5 +1,5 @@
-import { JouleFinanceDataTool } from './tools/jouleFinanceDataTool';
-import { generateAssetDistributionChart } from './charts/chartGenerator';
+import { JouleFinanceDataTool } from './tools/jouleFinanceDataTool.js';
+import { generateAssetDistributionChart } from './charts/chartGenerator.js';
 import * as fs from 'fs';
 import * as path from 'path';
 

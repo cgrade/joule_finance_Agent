@@ -1,6 +1,6 @@
-import { Annotation } from "langraph";
-import { BaseMessage } from "langchain/schema";
-import { PosterState } from "./types";
+import { Annotation } from "@langchain/langgraph";
+import { BaseMessage } from "@langchain/core/messages";
+import { PosterState } from "./types.js";
 
 /**
  * LangGraph state annotation for the Poster agent system

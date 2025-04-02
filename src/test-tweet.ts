@@ -1,4 +1,4 @@
-import { TwitterClient } from './clients/twitterClient';
+import { TwitterClient } from './clients/twitterClient.js';
 
 async function testTweet() {
   try {

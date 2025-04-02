@@ -5,7 +5,7 @@
  * encapsulating signer, Aptos client, and agent operations.
  */
 import { Aptos, EntryFunctionArgumentTypes, TransactionResponse, UserTransactionResponse, CommittedTransactionResponse } from '@aptos-labs/ts-sdk';
-import { LocalSigner } from '../utils/signer';
+import { LocalSigner } from '../utils/signer.js';
 /**
  * Agent options interface
  */

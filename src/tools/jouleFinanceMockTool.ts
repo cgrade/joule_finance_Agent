@@ -1,9 +1,9 @@
 // Enhanced Joule Finance data tool with transparent mock data option
-import { AgentRuntime } from "../agent/runtime";
+import { AgentRuntime } from "../agent/runtime.js";
 import axios from "axios";
 import chalk from "chalk";
-import config from "../config";
-import AptosClient from "../utils/aptos-client";
+import config from "../config.js";
+import AptosClient from "../utils/aptos-client.js";
 
 // Define interfaces for type safety
 interface AssetData {

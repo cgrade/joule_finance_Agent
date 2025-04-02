@@ -1,7 +1,7 @@
-import { FunctionMessage } from "langchain/schema";
-import { PosterState } from "../state/types";
-import { pruneMessages, logStateSize } from "../state/utils";
-import { XProfessionalPostTool } from "../tools/socialMedia";
+import { FunctionMessage } from "@langchain/core/messages";
+import { PosterState } from "../state/types.js";
+import { pruneMessages, logStateSize } from "../state/utils.js";
+import { XProfessionalPostTool } from "../tools/socialMedia.js";
 
 /**
  * Creates a posting agent that posts content to social media
@@ -15,8 +15,8 @@ export const createPostingAgent = (xPoster: XProfessionalPostTool) => {
     console.log(`Message types: ${messages.map(m => m.name || 'unnamed').join(', ')}`);
     
     try {
-      // Find the most recent writer agent message
-      const latestWriterMessage = messages.findLast(msg => msg.name === 'writer_agent');
+      // Find the most recent writer agent message using reverse() and find() instead of findLast
+      const latestWriterMessage = [...messages].reverse().find(msg => msg.name === 'writer_agent');
       
       if (!latestWriterMessage) {
         throw new Error('No writer agent message found in state');

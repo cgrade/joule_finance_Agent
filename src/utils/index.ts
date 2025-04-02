@@ -1,4 +1,4 @@
-import getLLM from './llm';
+import getLLM from './llm.js';
 
 export {
   getLLM

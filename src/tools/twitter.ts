@@ -1,6 +1,6 @@
 import { StructuredTool } from "@langchain/core/tools";
 import { z } from "zod";
-import config from "../config";
+import config from "../config.js";
 
 /**
  * Tool for social media interactions (like, reply, retweet)

@@ -1,5 +1,5 @@
-import { AgentRuntime } from "../agent/runtime";
-import { JouleFinanceData, JouleMetricType, Timeframe } from "../types";
+import { AgentRuntime } from "../agent/runtime.js";
+import { JouleFinanceData, JouleMetricType, Timeframe } from "../types/index.js";
 /**
  * Tool for fetching and processing Joule Finance blockchain data
  */

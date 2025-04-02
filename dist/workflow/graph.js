@@ -1,20 +1,14 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.buildPosterWorkflow = void 0;
-const sdk_1 = __importDefault(require("@anthropic-ai/sdk"));
-const config_1 = __importDefault(require("../config"));
+import Anthropic from '@anthropic-ai/sdk';
+import config from "../config.js";
 // Complete the implementation with proper visualization support
-const buildPosterWorkflow = (jouleFinanceTool, xPostTool, knowledgeBase) => {
+export const buildPosterWorkflow = (jouleFinanceTool, xPostTool, knowledgeBase) => {
     try {
         console.log('Building Joule Finance poster workflow...');
         // Initialize direct Anthropic client
-        const anthropicClient = new sdk_1.default({
-            apiKey: config_1.default.llm.apiKey,
+        const anthropicClient = new Anthropic({
+            apiKey: config.llm.apiKey,
         });
-        console.log('Initializing with API key starting with:', config_1.default.llm.apiKey.substring(0, 4) + '...');
+        console.log('Initializing with API key starting with:', config.llm.apiKey.substring(0, 4) + '...');
         return {
             invoke: async (stateObject) => {
                 // Extract input
@@ -142,7 +136,6 @@ const buildPosterWorkflow = (jouleFinanceTool, xPostTool, knowledgeBase) => {
         throw error;
     }
 };
-exports.buildPosterWorkflow = buildPosterWorkflow;
 // Helper function to extract input
 function extractInput(stateObject) {
     if (typeof stateObject === 'string')
@@ -199,5 +192,4 @@ async function createChartFromMarketData(xPostTool, marketData) {
         return "";
     }
 }
-exports.default = exports.buildPosterWorkflow;
-//# sourceMappingURL=graph.js.map
+export default buildPosterWorkflow;

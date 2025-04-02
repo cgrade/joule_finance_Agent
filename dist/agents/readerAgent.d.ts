@@ -1,5 +1,5 @@
-import { PosterState } from "../state/types";
-import { JouleFinanceDataTool } from "../tools/jouleFinance";
+import { PosterState } from "../state/types.js";
+import { JouleFinanceDataTool } from "../tools/jouleFinance.js";
 /**
  * Creates a data reader agent that fetches Joule Finance metrics
  */

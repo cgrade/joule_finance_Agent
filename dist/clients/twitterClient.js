@@ -1,75 +1,93 @@
-"use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || (function () {
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
-    };
-    return function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-})();
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.TwitterClient = void 0;
-const chalk_1 = __importDefault(require("chalk"));
-const fs = __importStar(require("fs"));
+import chalk from 'chalk';
+import * as fs from 'fs';
+import { TwitterApi } from 'twitter-api-v2';
+import * as dotenv from 'dotenv';
+// Load environment variables
+dotenv.config();
 /**
- * Simple Twitter client for posting tweets
+ * Twitter client for posting tweets
  */
-class TwitterClient {
+export class TwitterClient {
+    client = null;
+    isProduction;
     constructor() {
-        console.log('Twitter client initialized with API keys');
+        this.isProduction = process.env.NODE_ENV === 'production';
+        // Check if we have all required Twitter credentials
+        const hasCredentials = process.env.TWITTER_API_KEY &&
+            process.env.TWITTER_API_SECRET &&
+            process.env.TWITTER_ACCESS_TOKEN &&
+            process.env.TWITTER_ACCESS_TOKEN_SECRET;
+        if (this.isProduction && hasCredentials) {
+            // Initialize the Twitter client with credentials
+            this.client = new TwitterApi({
+                appKey: process.env.TWITTER_API_KEY,
+                appSecret: process.env.TWITTER_API_SECRET,
+                accessToken: process.env.TWITTER_ACCESS_TOKEN,
+                accessSecret: process.env.TWITTER_ACCESS_TOKEN_SECRET,
+            });
+            console.log(chalk.green('✅ Twitter client initialized in PRODUCTION mode'));
+        }
+        else {
+            console.log(chalk.yellow('⚠️ Twitter client initialized in DEVELOPMENT mode (tweets will be logged but not posted)'));
+            if (!hasCredentials) {
+                console.log(chalk.yellow('Missing Twitter API credentials. Add them to your .env file to enable actual posting.'));
+            }
+        }
     }
     /**
      * Post a tweet to Twitter
      */
     async tweet(content) {
-        console.log(chalk_1.default.blue('🐦 Would tweet:'), content);
-        // In production mode, this would connect to the Twitter API
-        // For now, we just log the tweet content
-        return true;
+        console.log(chalk.blue('🐦 Tweet content:'), content);
+        if (this.isProduction && this.client) {
+            try {
+                // Actually post to Twitter in production mode
+                const response = await this.client.v2.tweet(content);
+                console.log(chalk.green('✅ Tweet posted successfully:'), response.data.id);
+                return true;
+            }
+            catch (error) {
+                console.error(chalk.red('❌ Error posting tweet:'), error);
+                return false;
+            }
+        }
+        else {
+            // In development mode, just log the tweet
+            console.log(chalk.yellow('ℹ️ DEVELOPMENT MODE: Tweet would be posted in production'));
+            return true;
+        }
     }
     /**
      * Post a tweet with media attachment to Twitter
      */
     async tweetWithMedia(content, mediaPath) {
-        console.log(chalk_1.default.blue('🐦 Would tweet with media:'), content);
-        console.log(chalk_1.default.blue('📊 Media file:'), mediaPath);
+        console.log(chalk.blue('🐦 Tweet with media:'), content);
+        console.log(chalk.blue('📊 Media file:'), mediaPath);
         // Verify media file exists
         if (!fs.existsSync(mediaPath)) {
-            console.error(chalk_1.default.red('❌ Media file not found:'), mediaPath);
+            console.error(chalk.red('❌ Media file not found:'), mediaPath);
             return false;
         }
-        // In production mode, this would upload the media and post with the Twitter API
-        // For now, we just log the tweet content and media path
-        return true;
+        if (this.isProduction && this.client) {
+            try {
+                // Upload the media file
+                const mediaId = await this.client.v1.uploadMedia(mediaPath);
+                // Post tweet with media
+                const response = await this.client.v2.tweet(content, {
+                    media: { media_ids: [mediaId] }
+                });
+                console.log(chalk.green('✅ Tweet with media posted successfully:'), response.data.id);
+                return true;
+            }
+            catch (error) {
+                console.error(chalk.red('❌ Error posting tweet with media:'), error);
+                return false;
+            }
+        }
+        else {
+            // In development mode, just log what would happen
+            console.log(chalk.yellow('ℹ️ DEVELOPMENT MODE: Tweet with media would be posted in production'));
+            return true;
+        }
     }
 }
-exports.TwitterClient = TwitterClient;
-//# sourceMappingURL=twitterClient.js.map

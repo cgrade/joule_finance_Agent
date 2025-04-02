@@ -5,19 +5,36 @@
     "founder": "Joule Labs",
     "website": "https://joule.finance",
     "github": "https://github.com/joule-finance",
+    "marketData": {
+        "tvl": "8.59M USD",
+        "totalBorrowed": "11.72M USD",
+        "marketSize": "20.32M USD",
+        "supportedAssets": [
+            "USDC",
+            "USDt",
+            "TruAPT",
+            "APT"
+        ]
+    },
     "features": [
         "Lending and borrowing with competitive rates",
         "Liquidity pools with incentivized staking",
         "Cross-chain bridges for multi-chain support",
         "Yield farming opportunities",
-        "Governance through JOULE token"
+        "Governance through JOULE token",
+        "Flash loans with 0.09% fee",
+        "Automated liquidations",
+        "Real-time risk monitoring"
     ],
     "uniqueSellingPoints": [
         "Built natively on Aptos for maximum efficiency",
         "Advanced risk management system",
         "Higher yields than competitors",
         "Innovative flash loan protocol",
-        "Community-driven governance"
+        "Community-driven governance",
+        "Institutional-grade security",
+        "Multi-asset collateral support",
+        "Competitive fee structure"
     ],
     "technology": {
         "blockchain": "Aptos",
@@ -27,19 +44,73 @@
             "Formal verification",
             "Multiple security audits",
             "Insurance fund",
-            "Gradual parameter adjustment"
-        ]
+            "Gradual parameter adjustment",
+            "Real-time monitoring",
+            "Multi-sig admin controls",
+            "Time-locks on critical functions"
+        ],
+        "performance": {
+            "txThroughput": "Over 100,000 TPS",
+            "blockTime": "1 second",
+            "finality": "Sub-second"
+        }
     },
     "riskManagement": {
         "liquidationThreshold": "Varies by asset, typically 80-90% of LTV",
         "liquidationProcess": "Automatic with incentives for liquidators",
         "riskParameters": "Dynamically adjusted based on market conditions",
-        "insuranceMechanism": "Protocol fee allocation to insurance fund"
+        "insuranceMechanism": "Protocol fee allocation to insurance fund",
+        "oracleProviders": [
+            "Pyth Network",
+            "Switchboard"
+        ],
+        "liquidationPenalty": "5-10% depending on asset",
+        "gracePeriod": "1 hour before liquidation",
+        "maxLeverage": "5x for stable assets, 3x for volatile assets"
     },
     "governance": {
         "token": "JOULE",
         "votingMechanism": "Snapshot voting with token-weighted votes",
         "proposalThreshold": "100,000 JOULE tokens to submit proposals",
-        "implementationDelay": "48 hours after successful vote"
+        "implementationDelay": "48 hours after successful vote",
+        "quorum": "10% of total JOULE supply",
+        "votingPeriod": "5 days",
+        "executionDelay": "24 hours",
+        "emergencyCouncil": {
+            "members": 5,
+            "threshold": 3,
+            "powers": [
+                "Emergency pause",
+                "Parameter adjustments",
+                "Security patches"
+            ]
+        }
+    },
+    "fees": {
+        "borrowing": "0.1% origination fee",
+        "flash": "0.09% per loan",
+        "liquidation": "5-10% penalty",
+        "protocol": "10% of all fees to treasury"
+    },
+    "integrations": {
+        "wallets": [
+            "Petra",
+            "Martian",
+            "Pontem",
+            "Rise"
+        ],
+        "bridges": [
+            "LayerZero",
+            "Wormhole",
+            "Stargate"
+        ],
+        "oracles": [
+            "Pyth",
+            "Switchboard"
+        ],
+        "analytics": [
+            "DefiLlama",
+            "TokenTerminal"
+        ]
     }
 }

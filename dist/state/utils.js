@@ -1,6 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.logStateSize = exports.pruneMessages = void 0;
 /**
  * Prunes message history to prevent state bloat while preserving important context
  * @param messages Array of messages to prune
@@ -8,7 +5,7 @@ exports.logStateSize = exports.pruneMessages = void 0;
  * @param preserveTypes Message types that should be prioritized for preservation
  * @returns Pruned array of messages
  */
-const pruneMessages = (messages, maxMessages = 10, preserveTypes = ['user_input', 'reader_agent', 'writer_agent', 'posting_agent']) => {
+export const pruneMessages = (messages, maxMessages = 10, preserveTypes = ['user_input', 'reader_agent', 'writer_agent', 'posting_agent']) => {
     if (!messages || !Array.isArray(messages))
         return [];
     if (messages.length <= maxMessages)
@@ -27,11 +24,10 @@ const pruneMessages = (messages, maxMessages = 10, preserveTypes = ['user_input'
     const uniqueRecent = recentMessages.filter(m => !importantIds.has(JSON.stringify(m)));
     return [...importantMessages, ...uniqueRecent].slice(-maxMessages);
 };
-exports.pruneMessages = pruneMessages;
 /**
  * Logs state size and composition for debugging
  */
-const logStateSize = (state, location) => {
+export const logStateSize = (state, location) => {
     if (!state || !state.messages)
         return;
     const messageCount = state.messages.length;
@@ -43,5 +39,3 @@ const logStateSize = (state, location) => {
     }, {});
     console.debug(`[${location}] State size: ${messageCount} messages | Types: ${JSON.stringify(messageTypes)}`);
 };
-exports.logStateSize = logStateSize;
-//# sourceMappingURL=utils.js.map

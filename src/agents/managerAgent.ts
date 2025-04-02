@@ -1,7 +1,7 @@
-import { HumanMessage, AIMessage, FunctionMessage } from "langchain/schema";
-import { PosterState } from "../state/types";
-import { pruneMessages } from "../state/utils";
-import { getLLM } from "../utils/llm";
+import { HumanMessage, AIMessage, FunctionMessage } from "@langchain/core/messages";
+import { PosterState } from "../state/types.js";
+import { pruneMessages } from "../state/utils.js";
+import { getLLM } from "../utils/llm.js";
 
 /**
  * Creates a manager agent that coordinates the workflow

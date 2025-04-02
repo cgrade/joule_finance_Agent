@@ -6,11 +6,11 @@
  */
 import { StructuredTool } from "@langchain/core/tools";
 import { z } from "zod";
-import { AgentRuntime } from "../agent/runtime";
-import JouleFinanceDataTool from './jouleFinance';
-import ChartVisualizationTool from './visualization';
-import XProfessionalPostTool from './socialMedia';
-import JouleKnowledgeBase from './knowledgeBase';
+import { AgentRuntime } from "../agent/runtime.js";
+import JouleFinanceDataTool from "./jouleFinance.js";
+import ChartVisualizationTool from "./visualization.js";
+import XProfessionalPostTool from "./socialMedia.js";
+import JouleKnowledgeBase from "./knowledgeBase.js";
 /**
  * Creates a token transfer tool for Aptos
  *

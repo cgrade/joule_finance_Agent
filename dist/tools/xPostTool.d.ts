@@ -1,3 +1,4 @@
+import { ChartVisualizationTool } from './visualization.js';
 export declare class XProfessionalPostTool {
     visualizationTool: ChartVisualizationTool;
     constructor(visualizationTool: ChartVisualizationTool);

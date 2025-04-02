@@ -1,34 +1,28 @@
-"use strict";
 /**
  * Configuration for Joule Finance X/Twitter Poster
  *
  * This file contains the configuration settings for the Joule Finance
  * X/Twitter posting agent. It loads values from environment variables.
  */
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.validateConfig = void 0;
-const dotenv_1 = __importDefault(require("dotenv"));
-const ts_sdk_1 = require("@aptos-labs/ts-sdk");
-dotenv_1.default.config();
+import dotenv from 'dotenv';
+import { Network } from '@aptos-labs/ts-sdk';
+dotenv.config();
 // Convert network string to Network enum
 const getNetwork = (networkStr) => {
     switch (networkStr?.toLowerCase()) {
         case 'testnet':
-            return ts_sdk_1.Network.TESTNET;
+            return Network.TESTNET;
         case 'devnet':
-            return ts_sdk_1.Network.DEVNET;
+            return Network.DEVNET;
         case 'mainnet':
         default:
-            return ts_sdk_1.Network.MAINNET;
+            return Network.MAINNET;
     }
 };
 // Create and export the configuration
 const config = {
     aptos: {
-        network: ts_sdk_1.Network.MAINNET,
+        network: Network.MAINNET,
         privateKey: process.env.APTOS_PRIVATE_KEY || '0x1234',
         nodeUrl: process.env.APTOS_NODE_URL || 'https://fullnode.mainnet.aptoslabs.com/v1',
     },
@@ -104,7 +98,7 @@ const config = {
     OPENAI_MODEL: process.env.OPENAI_MODEL || 'gpt-4'
 };
 // Validate critical configuration
-const validateConfig = () => {
+export const validateConfig = () => {
     const missing = [];
     if (!config.aptos.privateKey)
         missing.push('APTOS_PRIVATE_KEY');
@@ -128,13 +122,11 @@ const validateConfig = () => {
         throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
     }
 };
-exports.validateConfig = validateConfig;
 try {
-    (0, exports.validateConfig)();
+    validateConfig();
 }
 catch (error) {
     console.error('Configuration error:', error.message);
     // Don't throw here, let the application handle this
 }
-exports.default = config;
-//# sourceMappingURL=config.js.map
+export default config;
