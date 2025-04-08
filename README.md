@@ -1,9 +1,5 @@
 # Joule Finance Assistant
 
-{% hint style="info" %}
-This documentation covers the AI assistant system for the Joule Finance protocol, including the chat interface and Twitter agent.
-{% endhint %}
-
 The Joule Finance Assistant is an AI-powered platform designed to provide information and support for users of the Joule Finance DeFi protocol on the Aptos blockchain.
 
 ## Main Components
