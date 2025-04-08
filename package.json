@@ -4,10 +4,15 @@
   "description": "AI-powered X/Twitter posting agent for Joule Finance on Aptos",
   "main": "dist/index.js",
   "scripts": {
-    "start:scheduled": "NODE_ENV=production ts-node --esm src/index.ts --frequency",
-    "start:once": "NODE_ENV=production ts-node --esm src/index.ts",
     "build": "tsc",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "NODE_ENV=production node --loader ts-node/esm src/index.ts",
+    "start:scheduled": "NODE_ENV=production node --loader ts-node/esm src/index.ts --frequency",
+    "dev": "NODE_OPTIONS='--loader ts-node/esm' ts-node src/index.ts",
+    "scheduled": "node --loader ts-node/esm src/index.ts --frequency",
+    "dev:chart": "NODE_ENV=development NODE_OPTIONS='--loader ts-node/esm' ts-node src/test-chart-post.ts",
+    "prod:chart": "NODE_ENV=production NODE_OPTIONS='--loader ts-node/esm' ts-node src/test-chart-post.ts",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "test-chart": "ts-node src/test-chart.ts"
   },
   "keywords": [
     "aptos",

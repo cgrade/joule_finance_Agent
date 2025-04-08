@@ -6,10 +6,10 @@ export class JouleFinanceDataTool {
     endpoint;
     contractAddress = "0x2fe576faa841347a9b1b32c869685deb75a15e3f62dfe37cbd6d52cc403a16f6";
     // Hardcoded values (moved from scraper.ts)
-    FALLBACK_TVL = 8442656.94;
-    FALLBACK_MARKET_SIZE = 20276452.75;
-    FALLBACK_BORROWED = 11833795.80;
-    FALLBACK_APR = 5.21;
+    FALLBACK_TVL = 9548053.97;
+    FALLBACK_MARKET_SIZE = 21194721.38;
+    FALLBACK_BORROWED = 11646667.40;
+    FALLBACK_APR = 9.14;
     FALLBACK_USERS = 3200;
     constructor(runtime) {
         this.runtime = runtime;
@@ -143,7 +143,7 @@ export class JouleFinanceDataTool {
      * Updated with real data from the website
      */
     getFallbackData() {
-        // Updated TVL from website: $8,442,656.94
+        // Updated TVL from website: $9,548,053.97
         const tvl = this.FALLBACK_TVL;
         // Asset data updated directly from the Joule Finance website
         const assets = {

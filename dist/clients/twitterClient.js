@@ -16,14 +16,16 @@ export class TwitterClient {
         const hasCredentials = process.env.TWITTER_API_KEY &&
             process.env.TWITTER_API_SECRET &&
             process.env.TWITTER_ACCESS_TOKEN &&
-            process.env.TWITTER_ACCESS_TOKEN_SECRET;
+            process.env.TWITTER_ACCESS_TOKEN_SECRET &&
+            process.env.TWITTER_CLIENT_ID &&
+            process.env.TWITTER_CLIENT_SECRET;
         if (this.isProduction && hasCredentials) {
             // Initialize the Twitter client with credentials
             this.client = new TwitterApi({
                 appKey: process.env.TWITTER_API_KEY,
                 appSecret: process.env.TWITTER_API_SECRET,
                 accessToken: process.env.TWITTER_ACCESS_TOKEN,
-                accessSecret: process.env.TWITTER_ACCESS_TOKEN_SECRET,
+                accessSecret: process.env.TWITTER_ACCESS_TOKEN_SECRET
             });
             console.log(chalk.green('✅ Twitter client initialized in PRODUCTION mode'));
         }
@@ -42,7 +44,9 @@ export class TwitterClient {
         if (this.isProduction && this.client) {
             try {
                 // Actually post to Twitter in production mode
-                const response = await this.client.v2.tweet(content);
+                const response = await this.client.v2.tweet({
+                    text: content
+                });
                 console.log(chalk.green('✅ Tweet posted successfully:'), response.data.id);
                 return true;
             }
@@ -70,11 +74,12 @@ export class TwitterClient {
         }
         if (this.isProduction && this.client) {
             try {
-                // Upload the media file
-                const mediaId = await this.client.v1.uploadMedia(mediaPath);
+                // Upload the media file using v1 API
+                const media = await this.client.v1.uploadMedia(mediaPath);
                 // Post tweet with media
-                const response = await this.client.v2.tweet(content, {
-                    media: { media_ids: [mediaId] }
+                const response = await this.client.v2.tweet({
+                    text: content,
+                    media: { media_ids: [media] }
                 });
                 console.log(chalk.green('✅ Tweet with media posted successfully:'), response.data.id);
                 return true;
